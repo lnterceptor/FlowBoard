@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_flow_board_db
+    environment:
+      POSTGRES_DB: flow_board_db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  app:
+    build: .
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATABASE_URL: jdbc:postgres://postgres:5432/flow_board_db
+      SPRING_DATABASE_USER: user
+      SPRING_DATABASE_PASSWORD: password
+
+volumes:
+  postgres_data:
