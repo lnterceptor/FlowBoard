@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
     UserService userService;
 
@@ -27,5 +27,10 @@ public class UserController {
     @GetMapping("/")
     public ResponseEntity<ArrayList<UserResponse>> getUsers(){
         return userService.getUsers();
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long userId){
+        return userService.deleteUser(userId);
     }
 }

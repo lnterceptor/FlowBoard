@@ -1,6 +1,6 @@
 package com.example.flowboard.controller;
 
-import com.example.flowboard.model.BoardDto;
+import com.example.flowboard.model.BoardResponse;
 import com.example.flowboard.model.CreateBoardRequest;
 import com.example.flowboard.service.BoardService;
 import jakarta.validation.Valid;
@@ -19,14 +19,17 @@ public class BoardController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<BoardDto> createBoard(@Valid @RequestBody CreateBoardRequest boardRequest) {
-    //create board and setting user for it
+    public ResponseEntity<BoardResponse> createBoard(@Valid @RequestBody CreateBoardRequest boardRequest) {
         return boardService.createBoard(boardRequest);
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ArrayList<BoardDto>> getUserBoards(@Valid @PathVariable Long userId){
-
+    public ResponseEntity<ArrayList<BoardResponse>> getUserBoards(@Valid @PathVariable Long userId){
         return boardService.getUserBoards(userId);
+    }
+
+    @DeleteMapping("/{boardId}")
+    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId){
+        return boardService.deleteBoard(boardId);
     }
 }
