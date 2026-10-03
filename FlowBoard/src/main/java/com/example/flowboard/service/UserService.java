@@ -1,6 +1,5 @@
 package com.example.flowboard.service;
 
-import com.example.flowboard.model.BoardDto;
 import com.example.flowboard.model.CreateUserRequest;
 import com.example.flowboard.model.User;
 import com.example.flowboard.model.UserResponse;
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -44,5 +42,10 @@ public class UserService {
         }
 
         return ResponseEntity.ok(usersResponse);
+    }
+
+    public ResponseEntity<?> deleteUser(Long userId){
+        userRepository.deleteById(userId);
+        return ResponseEntity.noContent().build();
     }
 }
