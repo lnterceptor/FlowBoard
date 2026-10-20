@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "columns")
+@ToString
 public class BoardColumn {
     @Id
     @Getter
@@ -47,6 +49,7 @@ public class BoardColumn {
         cascade = CascadeType.ALL,
         orphanRemoval = true,
         fetch = FetchType.LAZY)
+    @ToString.Exclude
     private List<Card> cards = new ArrayList<>();
 
     public void addCard(Card card){

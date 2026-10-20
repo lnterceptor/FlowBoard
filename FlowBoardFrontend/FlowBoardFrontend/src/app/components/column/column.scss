@@ -1,0 +1,31 @@
+.column{
+    background-color: 	#26334B;
+    display: flex;
+    flex-direction:column;
+    align-items: start;
+    width: 15cqw;
+    border-radius: 15px;
+    border: 2px solid antiquewhite;
+
+}
+
+.title-bar{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;                
+}
+.title{
+    color: #38BDF8;
+    font-size: large;
+    font-weight: bold;
+}
+.columnButton{
+    background-color: #38BDF8;
+    font-size: small;
+}
+
+.settings-button mat-icon {
+  color: #bdbdbd;
+  
+}

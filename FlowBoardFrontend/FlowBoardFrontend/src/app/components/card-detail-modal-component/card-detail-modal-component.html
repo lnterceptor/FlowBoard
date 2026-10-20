@@ -1,0 +1,37 @@
+<div class="card-detail-modal">
+    <form [formGroup]="cardDetailsForm" (ngSubmit)="sendCardToBackend()">
+        <mat-form-field class="input-field">    
+            <mat-label>Title:</mat-label>
+            <input matInput type=text id="title-input" formControlName="title"/>
+            
+        </mat-form-field>
+        
+                
+        <mat-form-field class="input-field">
+                <input matInput [matDatepicker]="picker" readonly placeholder="Choose a date"  formControlName="dueDate"  class="background">
+                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker ></mat-datepicker>
+        </mat-form-field>
+ 
+
+        <div>
+        <mat-form-field class="input-field">  
+            <mat-label>Description:</mat-label>
+            <input matInput type=text id="description-input" formControlName="description"/>
+        </mat-form-field>
+        </div>
+
+    
+    <div class="button-row">
+            <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
+            <div button-row-second-part>
+                @if(this.id() != null){
+                    <button matButton="outlined" class="button-delete" type="button" (click)="deleteCard()">delete</button>
+                }
+                <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
+            </div>
+    </div>
+
+    </form>
+
+</div>

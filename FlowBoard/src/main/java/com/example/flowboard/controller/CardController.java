@@ -1,5 +1,6 @@
 package com.example.flowboard.controller;
 
+import com.example.flowboard.model.CardResponse;
 import com.example.flowboard.model.ChangeObjectOrder;
 import com.example.flowboard.model.ChangeColumnOfCard;
 import com.example.flowboard.model.CreateCardRequest;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/cards")
 public class CardController {
@@ -19,27 +21,24 @@ public class CardController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<?> createCard(@RequestBody CreateCardRequest createCardRequest){
+    public ResponseEntity<CardResponse> createCard(@RequestBody CreateCardRequest createCardRequest){
         return cardService.createCard(createCardRequest);
     }
 
-    @PatchMapping("updateName/{cardId}")
-    public ResponseEntity<?> renameCard(@RequestBody String newName, @PathVariable Long cardId){
-        return cardService.renameCard(cardId, newName);
-    }
-
-    @PatchMapping("updateDueDate/{cardId}")
-    public ResponseEntity<?> updateDueDate(@RequestBody LocalDate newName, @PathVariable Long cardId){
-        return cardService.updateDueDate(cardId, newName);
+    @PatchMapping("/{cardId}")
+    public ResponseEntity<CardResponse> updateCard(@RequestBody CreateCardRequest newCard, @PathVariable Long cardId){
+        return cardService.updateCard(cardId, newCard);
     }
 
     @PatchMapping("/reorder")
     public ResponseEntity<?> changeOrderInColumn(@RequestBody ChangeObjectOrder changeObjectOrder){
+        System.out.println("order of cards in column changed");
         return cardService.changeOrderInColumn(changeObjectOrder);
     }
 
     @PatchMapping("/moveCard")
     public ResponseEntity<?> changeColumnAndPlacementOfCard(@RequestBody ChangeColumnOfCard changeColumnOfCard){
+        System.out.println("moved card to different column");
         return cardService.moveCardToDifferentColumn(changeColumnOfCard);
     }
 

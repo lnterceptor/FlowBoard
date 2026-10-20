@@ -1,0 +1,29 @@
+<div class="board" >
+    <p class = "title">{{this.title}}</p>
+    <ul class="tool-bar">
+        <button (click)="addNewColumn()">Add column</button>
+        <button (click)="addNewCollabolator()">Add collabolator</button>
+        <button (click)="removeCollabolator()">Remove collabolator</button>
+        <button (click)="updateBoard()">Update board</button>
+        <button (click)="deleteBoard()">Delete board</button>
+        <button (click)="goToMainPage()">Go to main page</button>
+    </ul>
+    <ul
+      cdkDropList
+      cdkDropListOrientation="horizontal"
+      [cdkDropListData]="columns()"
+      (cdkDropListDropped)="drop($event)"
+    >
+    <ul class = "columns" cdkDropListGroup>
+        @for (column of columns(); track column.positionOnBoard) {
+            <app-column 
+                cdkDrag
+                [id]="column.id"
+                [cards]="column.cards"
+                [position_on_board]="column.positionOnBoard"
+                [title]="column.title"
+                [boardId]="this.id"/>
+        }
+    </ul>
+    </ul>
+</div>
