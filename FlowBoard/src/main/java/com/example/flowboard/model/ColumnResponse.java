@@ -1,16 +1,12 @@
 package com.example.flowboard.model;
 
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public record ColumnResponse (
         Long id,
         String title,
-        Long positionInBoard,
+        Long positionOnBoard,
         List<CardResponse> cards
 ) {
     public static ColumnResponse from(BoardColumn column){

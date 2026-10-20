@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,11 +12,16 @@ import java.time.LocalDate;
 @Entity
 @Data
 @Table(name = "cards")
+@ToString
 public class Card {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
+    @Getter
+    @Setter
+    String title;
 
     @Getter
     @Setter
@@ -48,5 +54,6 @@ public class Card {
     @Setter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name="column_id")
+    @ToString.Exclude
     BoardColumn column;
 }
