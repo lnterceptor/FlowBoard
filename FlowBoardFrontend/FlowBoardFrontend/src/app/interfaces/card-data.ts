@@ -1,3 +1,5 @@
+import { LabelData } from "./label-data";
+
 export interface CardData {
     id: number;
     title: string;
@@ -5,4 +7,5 @@ export interface CardData {
     description: string;
     positionInColumn: number;
     assignees: string[];
+    labels: LabelData[];
 }

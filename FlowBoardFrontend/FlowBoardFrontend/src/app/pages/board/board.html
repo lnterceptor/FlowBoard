@@ -3,6 +3,7 @@
     <ul class="tool-bar">
         <button (click)="addNewColumn()">Add column</button>
         <button (click)="modifyCollabolators()">Collabolators</button>
+        <button (click)="modifyLabels()">Labels</button>
         <button (click)="updateBoard()">Update board</button>
         <button (click)="deleteBoard()">Delete board</button>
         <button (click)="goToMainPage()">Go to main page</button>
@@ -22,7 +23,8 @@
                 [position_on_board]="column.positionOnBoard"
                 [title]="column.title"
                 [boardId]="this.id"
-                [collaborators]="this.collaborators"
+                [collaborators]="this.collaborators",
+                [avaibleLabels]="this.labels"
                 />
         }
     </ul>

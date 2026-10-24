@@ -17,6 +17,8 @@ import { BoardsDetailModalComponent } from '../../components/boards-detail-modal
 import { BoardSummary } from '../../interfaces/board-summary';
 import { BoardService } from '../../services/board-service';
 import { ModifyCollaborator } from '../../components/modify-collaborator/modify-collaborator';
+import { ModifyLabels } from '../../components/modify-labels/modify-labels';
+import { LabelData } from '../../interfaces/label-data';
 
 @Component({
   selector: 'app-board',
@@ -31,6 +33,7 @@ export class Board {
   title: string = "";
   description:string = "";
   collaborators: string[] = [];
+  labels: LabelData[] = [];
 
   constructor(private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService){}
 
@@ -43,14 +46,17 @@ export class Board {
         this.title = board.title;
         this.description = board.description;
         this.collaborators = board.collaborators;
+        this.labels = board.labels;
+
+        console.log("labels");   
+        console.log(this.labels);
+        
         this.columns = this.columnService.columns;
       }}
     );
     
-    
-    
-
   }
+
   drop(event: CdkDragDrop<ColumnData[]>) {
     moveItemInArray(
       this.columns(),
@@ -93,6 +99,16 @@ export class Board {
     })
     dialogRef.afterClosed().subscribe((collaborators: string[]) =>
     this.collaborators = collaborators)
+  }
+
+  modifyLabels(){
+    const dialogRef = this.dialog.open(ModifyLabels, {
+      disableClose: true,
+      data:{boardId: this.id, labels: this.labels}
+    });
+    dialogRef.afterClosed().subscribe((labels: LabelData[]) =>{
+      this.labels = labels;
+    });
   }
 
   updateBoard(){

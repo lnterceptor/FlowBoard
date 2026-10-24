@@ -16,6 +16,7 @@ import { ColumnDetailModalComponent } from '../column-detail-modal-component/col
 import { ColumnData } from '../../interfaces/column-data';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIcon } from '@angular/material/icon';
+import { LabelData } from '../../interfaces/label-data';
 
 @Component({
   selector: 'app-column',
@@ -43,11 +44,14 @@ import { MatIconModule, MatIcon } from '@angular/material/icon';
           [dueDate]="this.dueDate"
           [assignees]="card.assignees"
           [collaborators]="this.collaborators()"
+          [assignedLabels]="card.labels"
+          [avaibleLabels]="this.avaibleLabels()"
         />
     }
     <app-add-new-card 
     [columnId]="this.id()"
-    [collaborators]="this.collaborators()">
+    [collaborators]="this.collaborators()"
+    [avaibleLabels]="this.avaibleLabels()">
     </app-add-new-card>
     </ul>
   </div>
@@ -62,6 +66,7 @@ export class Column {
   dueDate: Date = new Date();
   boardId = input<number>();
   collaborators = input<string[]>();
+  avaibleLabels = input<LabelData[]>();
 
   constructor(private dialog: MatDialog, private cardService: CardService, private columnService: ColumnService){};
   

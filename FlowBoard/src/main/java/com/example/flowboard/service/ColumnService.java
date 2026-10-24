@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 @Service
 public class ColumnService {
@@ -105,15 +104,7 @@ public class ColumnService {
                 tempColumn.setLastUpdateDate(Instant.now());
 
             }
-            /*if(tempColumn.getPositionInBoard().equals(newPosition) && !column.equals(tempColumn)){
-                System.out.println("change done");
-                tempColumn.setPositionInBoard(column.getPositionInBoard());
-                tempColumn.setLastUpdateDate(Instant.now());
 
-                column.setPositionInBoard(newPosition);
-                column.setLastUpdateDate(Instant.now());
-                break;
-            }*/
         }
         column.setPositionInBoard(newPosition);
         ArrayList<ColumnResponse> columnResponses = new ArrayList<>();

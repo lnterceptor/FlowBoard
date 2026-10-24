@@ -60,7 +60,7 @@ public class User {
     @ManyToMany(mappedBy = "assignees", fetch = FetchType.LAZY)
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    private Set<Card> assignedCards = new HashSet<>();
+    private List<Card> assignedCards = new ArrayList<>();
 
     public void addBoard(Board board){
         boards.add(board);

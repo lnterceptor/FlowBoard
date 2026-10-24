@@ -38,6 +38,16 @@ public class Board {
     private User user;
 
 
+    @Setter
+    @Getter
+    @OneToMany(
+            mappedBy="board",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private Set<Label> labels = new HashSet<>();
+
     @Getter
     @Setter
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})

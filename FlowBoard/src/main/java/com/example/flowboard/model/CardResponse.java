@@ -1,11 +1,16 @@
 package com.example.flowboard.model;
 
-import java.util.Set;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
-public record CardResponse(Long id, String title, String description, Long positionInColumn, Set<String> assignees) {
+public record CardResponse(Long id, String title, String description, Long positionInColumn, ArrayList<String> assignees, ArrayList<LabelResponse> labels) {
     public static CardResponse from(Card card){
+        ArrayList<LabelResponse> labels = new ArrayList<>();
+        for(Label label: card.getLabels()){
+            labels.add(LabelResponse.from(label));
+        }
         return new CardResponse(card.getId(), card.getTitle(), card.getDescription(), card.getPositionInColumn(),
-                card.getAssignees().stream().map(User::getUsername).collect(Collectors.toSet()));
+                (ArrayList<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toList()),
+                labels);
     }
 }

@@ -3,6 +3,7 @@ import { CardData } from '../interfaces/card-data';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { ColumnService } from './column-service';
+import { LabelData } from '../interfaces/label-data';
 
 @Injectable({
   providedIn: 'root',
@@ -24,7 +25,8 @@ export class CardService {
             title: item.title,
             positionInColumn: item.positionInColumn,
             description:item.description,
-            assignees: item.assignees
+            assignees: item.assignees,
+            labels: item.labels.sort((a,b) => a.name.localeCompare(b.name))
           }])
         }
         this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);
@@ -47,21 +49,22 @@ export class CardService {
               title: item.title,
               description:item.description,
               positionInColumn: item.positionInColumn,
-              assignees: item.assignees
+              assignees: item.assignees,
+              labels: item.labels.sort((a,b) => a.name.localeCompare(b.name))
             }])
           }
       return this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);    
     }
 
 
-    addNewCard(title: string, description: string ,dueDate: Date, columnId: number, assignees: string[]): Observable<CardData>{
+    addNewCard(title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[]): Observable<CardData>{
       const localDate = [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
       ].join('-');
 
-      const newCard = {title, description, dueDate: localDate, columnId, assignees};
+      const newCard = {title, description, dueDate: localDate, columnId, assignees, labels};
       return this.http.post<CardData>(this.apiUrl + '/', newCard);
     }
     
@@ -69,14 +72,14 @@ export class CardService {
       return this.http.delete<void>(this.apiUrl+ '/' + id);
     }
 
-    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[]): Observable<CardData>{
+    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[]): Observable<CardData>{
       const localDate = [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
       ].join('-');
 
-      const updatedCard = {title, description, dueDate: localDate, columnId, assignees};
+      const updatedCard = {title, description, dueDate: localDate, columnId, assignees, labels};
       return this.http.patch<CardData>(this.apiUrl + '/' + id, updatedCard);
     }
 }

@@ -5,6 +5,7 @@ import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.CardRepository;
 import com.example.flowboard.repository.ColumnRepository;
+import com.example.flowboard.repository.LabelRepository;
 import com.example.flowboard.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -13,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -22,16 +22,18 @@ import java.util.stream.Collectors;
 @Service
 public class CardService {
     private final UserRepository userRepository;
+    private final LabelRepository labelRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
     CardRepository cardRepository;
     ColumnRepository columnRepository;
 
-    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository){
+    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository){
         this.cardRepository = cardRepository;
         this.columnRepository = columnRepository;
         this.userRepository = userRepository;
+        this.labelRepository = labelRepository;
     }
 
     @Transactional
@@ -98,6 +100,11 @@ public class CardService {
             card.addAssignee(user);
         }
 
+        for(LabelRequest label: createCardRequest.labels()){
+            Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), column.getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+            card.addLabel(newLabel);
+        }
+
         column.setLastUpdateDate(Instant.now());
         column.addCard(card);
         cardRepository.save(card);
@@ -143,7 +150,7 @@ public class CardService {
 
     @Transactional
     public ResponseEntity<CardResponse> updateCard(Long cardId, CreateCardRequest newCard){
-        System.out.println(newCard.assignees());
+        System.out.println(newCard.labels());
         Card card = cardRepository.findCardById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card does not exist"));
 
         card.setTitle(newCard.title());
@@ -152,7 +159,6 @@ public class CardService {
         card.setLastUpdateDate(Instant.now());
 
         card.getAssignees().removeIf(user -> !newCard.assignees().contains(user.getUsername()));
-
 
 
         HashSet<String> currentAssignees = (HashSet<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toSet());
@@ -165,6 +171,21 @@ public class CardService {
         }
 
 
+        for(Label label: new ArrayList<>(card.getLabels())){
+            if (!newCard.labels().contains(new LabelRequest(label.getName(), label.getColor()))) {
+                card.removeLabel(label);
+            }
+        }
+
+        HashSet<String> currentLabels = (HashSet<String>) card.getLabels().stream().map(Label::getName).collect(Collectors.toSet());
+
+        for(LabelRequest label: newCard.labels()){
+            if(!currentLabels.contains(label.name())){
+                Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), card.getColumn().getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+                card.addLabel(newLabel);
+            }
+        }
+        //entityManager.flush();
         return ResponseEntity.ok(CardResponse.from(card));
     }
 

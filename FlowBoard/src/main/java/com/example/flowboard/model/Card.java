@@ -5,8 +5,8 @@ import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -36,7 +36,24 @@ public class Card {
     )
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
-    Set<User> assignees = new HashSet<>();
+    private List<User> assignees = new ArrayList<>();
+
+    @Getter
+    @ManyToMany(mappedBy = "cards", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Label> labels = new ArrayList<>();
+
+    public void addLabel(Label label){
+        labels.add(label);
+        label.getCards().add(this);
+    }
+
+    public void removeLabel(Label label){
+        if(labels.remove(label)){
+            label.getCards().remove(this);
+        }
+    }
 
     @Getter
     @Setter
@@ -44,9 +61,6 @@ public class Card {
     @Getter
     @Setter
     String attachments; //todo: it will also be a Set
-    @Getter
-    @Setter
-    String labels; //todo: it will also be a Set with labels
     @Getter
     @Setter
     Long positionInColumn;

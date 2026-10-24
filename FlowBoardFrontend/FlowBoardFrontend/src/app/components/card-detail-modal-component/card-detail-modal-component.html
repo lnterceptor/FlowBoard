@@ -49,6 +49,34 @@
       </mat-option>
     </mat-select>
   </mat-form-field>
+
+
+  <mat-form-field appearance="outline">
+    <mat-label>Labels</mat-label>
+
+     <mat-select
+      [ngModel]="assignedLabels()"
+      (ngModelChange)="assignedLabels.set($event)"
+      [ngModelOptions]="{ standalone: true }"
+      [compareWith]="compareLabels"
+      multiple>
+      
+      <mat-option
+        *ngFor="let label of avaibleLabels()"
+        [value]="label">
+        {{ label.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+    <mat-chip-set aria-label="Selected labels">
+        <mat-chip [style.background-color]="label.color"
+            *ngFor="let label of assignedLabels()">
+            {{ label.name }}
+        </mat-chip>
+    </mat-chip-set>
+
+
     </form>
 
 </div>
