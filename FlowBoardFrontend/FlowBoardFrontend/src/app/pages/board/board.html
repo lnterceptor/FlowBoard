@@ -2,8 +2,7 @@
     <p class = "title">{{this.title}}</p>
     <ul class="tool-bar">
         <button (click)="addNewColumn()">Add column</button>
-        <button (click)="addNewCollabolator()">Add collabolator</button>
-        <button (click)="removeCollabolator()">Remove collabolator</button>
+        <button (click)="modifyCollabolators()">Collabolators</button>
         <button (click)="updateBoard()">Update board</button>
         <button (click)="deleteBoard()">Delete board</button>
         <button (click)="goToMainPage()">Go to main page</button>
@@ -22,7 +21,9 @@
                 [cards]="column.cards"
                 [position_on_board]="column.positionOnBoard"
                 [title]="column.title"
-                [boardId]="this.id"/>
+                [boardId]="this.id"
+                [collaborators]="this.collaborators"
+                />
         }
     </ul>
     </ul>

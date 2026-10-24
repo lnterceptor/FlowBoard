@@ -17,11 +17,12 @@ import { CardData } from '../../interfaces/card-data';
 export class AddNewCard {
   constructor(private dialog: MatDialog, private columnService: ColumnService) {}
   columnId = input<number>();
+  collaborators = input<string[]>();
 
   openCardDetails(){
         const dialogRef = this.dialog.open(CardDetailModalComponent, {
         disableClose: true,
-        data:{description: '', title: '', columnId: this.columnId()}
+        data:{description: '', title: '', columnId: this.columnId(), collaborators: this.collaborators()}
       });
       dialogRef.afterClosed().subscribe((card: CardData) =>{
     if(card) {

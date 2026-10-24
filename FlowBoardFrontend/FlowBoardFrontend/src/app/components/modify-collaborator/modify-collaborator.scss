@@ -1,0 +1,33 @@
+.collaborator-element{
+    background-color: #f3f4f6;
+    border-radius: 15px;
+    border: 2px solid #1f2937;
+    display: flex;
+    flex-direction:row;
+    margin: 0 auto;
+    
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    gap: 10px;
+}
+
+.username{
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 450;
+  margin-left: 3%;
+}
+.collabolator-list{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+}
+
+
+.input-field {
+    margin-top: 10%;
+    width: 80%;
+    margin-left: 10%;
+    border-radius: 15px;
+}

@@ -1,13 +1,12 @@
 package com.example.flowboard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -26,9 +25,19 @@ public class Card {
     @Getter
     @Setter
     String description;
+
     @Getter
     @Setter
-    String assignees; //todo: person/people responsible for doing given assigment, change to a Set after adding members
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "card_assignees",
+            joinColumns = @JoinColumn(name = "card_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    Set<User> assignees = new HashSet<>();
+
     @Getter
     @Setter
     LocalDate dueDate;
@@ -56,4 +65,14 @@ public class Card {
     @JoinColumn(name="column_id")
     @ToString.Exclude
     BoardColumn column;
+
+    public void addAssignee(User user) {
+        this.assignees.add(user);
+        user.getAssignedCards().add(this);
+    }
+
+    public void removeAssignee(User user){
+        this.assignees.remove(user);
+        user.getAssignedCards().remove(this);
+    }
 }

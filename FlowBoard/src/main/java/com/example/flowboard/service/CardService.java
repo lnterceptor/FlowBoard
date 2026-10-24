@@ -5,6 +5,7 @@ import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.CardRepository;
 import com.example.flowboard.repository.ColumnRepository;
+import com.example.flowboard.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -14,19 +15,23 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CardService {
+    private final UserRepository userRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
     CardRepository cardRepository;
     ColumnRepository columnRepository;
 
-    public CardService(CardRepository cardRepository, ColumnRepository columnRepository){
+    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository){
         this.cardRepository = cardRepository;
         this.columnRepository = columnRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional
@@ -88,6 +93,11 @@ public class CardService {
         card.setDueDate(createCardRequest.dueDate());
         card.setCreationDate(Instant.now());
 
+        for(String assignee: createCardRequest.assignees()) {
+            User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+            card.addAssignee(user);
+        }
+
         column.setLastUpdateDate(Instant.now());
         column.addCard(card);
         cardRepository.save(card);
@@ -121,16 +131,6 @@ public class CardService {
                 tempCard.setPositionInColumn(tempCard.getPositionInColumn() - 1);
                 tempCard.setLastUpdateDate(Instant.now());
             }
-            /*if(tempCard.getPositionInColumn().equals(newPosition) && !card.equals(tempCard)){
-                tempCard.setPositionInColumn(card.getPositionInColumn());
-                tempCard.setLastUpdateDate(Instant.now());
-
-                card.setPositionInColumn(newPosition);
-                card.setLastUpdateDate(Instant.now());
-
-                column.setLastUpdateDate(Instant.now());
-                break;
-            }*/
         }
         card.setPositionInColumn(newPosition);
         card.setLastUpdateDate(Instant.now());
@@ -143,12 +143,27 @@ public class CardService {
 
     @Transactional
     public ResponseEntity<CardResponse> updateCard(Long cardId, CreateCardRequest newCard){
+        System.out.println(newCard.assignees());
         Card card = cardRepository.findCardById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card does not exist"));
 
         card.setTitle(newCard.title());
         card.setDescription(newCard.description());
         card.setDueDate(newCard.dueDate());
         card.setLastUpdateDate(Instant.now());
+
+        card.getAssignees().removeIf(user -> !newCard.assignees().contains(user.getUsername()));
+
+
+
+        HashSet<String> currentAssignees = (HashSet<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toSet());
+
+        for(String assignee: newCard.assignees()) {
+            if (!currentAssignees.contains(assignee)) {
+                User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+                card.addAssignee(user);
+            }
+        }
+
 
         return ResponseEntity.ok(CardResponse.from(card));
     }

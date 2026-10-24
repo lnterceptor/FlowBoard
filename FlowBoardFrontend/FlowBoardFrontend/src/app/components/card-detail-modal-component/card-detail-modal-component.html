@@ -31,7 +31,24 @@
                 <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
             </div>
     </div>
+    
 
+   <mat-form-field appearance="outline">
+    <mat-label>Assigned people</mat-label>
+
+     <mat-select
+      [ngModel]="assignees()"
+      (ngModelChange)="assignees.set($event)"
+      [ngModelOptions]="{ standalone: true }"
+      multiple>
+      
+      <mat-option
+        *ngFor="let collaborator of collaborators()"
+        [value]="collaborator">
+        {{ collaborator }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
     </form>
 
 </div>

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 public class BoardService {
@@ -58,5 +59,31 @@ public class BoardService {
         board.setDescription(updatedBoard.desc());
         board.setLastUpdateDate(Instant.now());
         return ResponseEntity.ok(BoardSummary.from(board));
+    }
+
+    public ResponseEntity<ArrayList<BoardSummary>> getUserJoinedBoards(Long userId){
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+        ArrayList<BoardSummary> boards = new ArrayList<>();
+        for(Board board: user.getJoinedBoards()){
+            boards.add(BoardSummary.from(board));
+        }
+        return ResponseEntity.ok(boards);
+    }
+
+    @Transactional
+    public ResponseEntity<ArrayList<String>> addCollaborator(CollaboratorRequest collaboratorRequest){
+        User user = userRepository.findUserByUsername(collaboratorRequest.collaboratorUsername()).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+        Board board = boardRepository.findBoardById(collaboratorRequest.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
+        board.addCollaborator(user);
+        ArrayList<String> usernames = (ArrayList<String>) board.getCollaborators().stream().map(User::getUsername).collect(Collectors.toList());
+        return ResponseEntity.ok(usernames);
+    }
+
+    @Transactional
+    public ResponseEntity<?> removeCollaborator(CollaboratorRequest collaboratorRequest){
+        User user = userRepository.findUserByUsername(collaboratorRequest.collaboratorUsername()).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+        Board board = boardRepository.findBoardById(collaboratorRequest.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
+        board.removeCollaborator(user);
+        return ResponseEntity.noContent().build();
     }
 }

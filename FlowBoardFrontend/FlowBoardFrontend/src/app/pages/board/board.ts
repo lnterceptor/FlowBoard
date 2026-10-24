@@ -16,6 +16,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BoardsDetailModalComponent } from '../../components/boards-detail-modal-component/boards-detail-modal-component';
 import { BoardSummary } from '../../interfaces/board-summary';
 import { BoardService } from '../../services/board-service';
+import { ModifyCollaborator } from '../../components/modify-collaborator/modify-collaborator';
 
 @Component({
   selector: 'app-board',
@@ -29,6 +30,7 @@ export class Board {
   router = inject(Router);
   title: string = "";
   description:string = "";
+  collaborators: string[] = [];
 
   constructor(private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService){}
 
@@ -40,10 +42,12 @@ export class Board {
       next: (board: BoardSummary) =>{
         this.title = board.title;
         this.description = board.description;
+        this.collaborators = board.collaborators;
+        this.columns = this.columnService.columns;
       }}
     );
     
-    this.columns = this.columnService.columns;
+    
     
 
   }
@@ -80,12 +84,18 @@ export class Board {
       });
   }
 
-  addNewCollabolator(){
-
+  modifyCollabolators(){
+    const dialogRef = this.dialog.open(ModifyCollaborator, {
+      width: '60vw',
+      height: '60vh',
+      disableClose: true,
+      data:{boardId: this.id, collaborators: this.collaborators}
+    })
+    dialogRef.afterClosed().subscribe((collaborators: string[]) =>
+    this.collaborators = collaborators)
   }
-  removeCollabolator(){}
+
   updateBoard(){
-    
     const dialogRef = this.dialog.open(BoardsDetailModalComponent, {
       disableClose: true,
       data:{id: this.id, title: this.title, description: this.description}

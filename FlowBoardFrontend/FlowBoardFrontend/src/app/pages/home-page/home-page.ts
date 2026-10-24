@@ -14,8 +14,10 @@ export class HomePage {
 
   //boards: BoardSummary[] = [];
   boards = signal<BoardSummary[]>([]);
+  joinedBoards = signal<BoardSummary[]>([]);
   async ngOnInit(){
     await this.boardService.getBoardsFromBackend();
     this.boards = this.boardService.boards;
+    this.joinedBoards = this.boardService.joinedBoards;
   }
 }

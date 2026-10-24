@@ -11,6 +11,12 @@ import { ColumnService } from '../../services/column-service';
     <div class="card">
     <p class="title">{{title()}}</p>
     <p class="description">  {{description()}} id of card is {{id()}} </p>
+    <ul>
+      @for(username of assignees(); track $index){
+       <div class = "description">{{ username }}</div>
+      }
+    </ul>
+
     <button mat-icon-button (click)="openCardDetails(); $event.stopPropagation()">
     Details, change to icon later
     </button>
@@ -25,12 +31,15 @@ export class Card {
   columnId = input<number>();
   dueDate = input<Date>();
   title = input<string>();
+  assignees = input<string[]>();
+  collaborators = input<string[]>();
+
   constructor(private dialog: MatDialog, private columnService: ColumnService) {}
 
   openCardDetails(){
     const dialogRef = this.dialog.open(CardDetailModalComponent, {
     disableClose: true,
-    data:{id: this.id(), dueDate: this.dueDate(), description: this.description(), title: this.title(), columnId: this.columnId}
+    data:{id: this.id(), dueDate: this.dueDate(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators()}
   });
   dialogRef.afterClosed().subscribe((card: CardData | number | undefined) =>{
     if(!card){

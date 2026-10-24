@@ -3,5 +3,17 @@
     grid-template-columns: repeat(5, 1fr);
     gap: 16px;
     padding: 10px;
+}
+.title{
+  color: #f5f5f5;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.list-of-boards{
+    display: flex;
+    flex-direction: column;
     background-color: #172033;
+    gap: 16px;
 }

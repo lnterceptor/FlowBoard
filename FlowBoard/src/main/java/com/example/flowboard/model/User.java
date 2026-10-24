@@ -1,13 +1,13 @@
 package com.example.flowboard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Data
@@ -20,7 +20,7 @@ public class User {
 
     @Setter
     @Getter
-    @Column
+    @Column(unique = true)
     private String username;
 
     @Setter
@@ -51,6 +51,16 @@ public class User {
             fetch = FetchType.LAZY
     )
     private List<Board> boards = new ArrayList<>();
+
+    @Getter
+    @ManyToMany(mappedBy = "collaborators", fetch = FetchType.LAZY)
+    private Set<Board> joinedBoards = new HashSet<>();
+
+    @Getter
+    @ManyToMany(mappedBy = "assignees", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Card> assignedCards = new HashSet<>();
 
     public void addBoard(Board board){
         boards.add(board);

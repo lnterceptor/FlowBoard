@@ -1,5 +1,5 @@
-<div class = >
-<h1>Main page</h1>
+<div class = "list-of-boards">
+<p class="title">User boards</p>
 <ul class="grid-container">
     @for(board of boards(); track board.id){
         <app-card-of-board 
@@ -12,4 +12,18 @@
         title="add new board"
         />
 </ul>
+</div>
+
+
+<div class = "list-of-boards">
+    <p class="title">Joined boards</p>
+    <ul class="grid-container">
+        @for(board of joinedBoards(); track board.id){
+            <app-card-of-board 
+            [id]="board.id"
+            [description]="board.description"
+            [title]="board.title"
+            />
+        }
+    </ul>
 </div>

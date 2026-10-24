@@ -41,9 +41,14 @@ import { MatIconModule, MatIcon } from '@angular/material/icon';
           [title]="card.title"
           [columnId]="this.id()"
           [dueDate]="this.dueDate"
+          [assignees]="card.assignees"
+          [collaborators]="this.collaborators()"
         />
     }
-    <app-add-new-card [columnId]="this.id()"></app-add-new-card>
+    <app-add-new-card 
+    [columnId]="this.id()"
+    [collaborators]="this.collaborators()">
+    </app-add-new-card>
     </ul>
   </div>
   `,
@@ -56,6 +61,7 @@ export class Column {
   cards = input<CardData[]>([]);
   dueDate: Date = new Date();
   boardId = input<number>();
+  collaborators = input<string[]>();
 
   constructor(private dialog: MatDialog, private cardService: CardService, private columnService: ColumnService){};
   

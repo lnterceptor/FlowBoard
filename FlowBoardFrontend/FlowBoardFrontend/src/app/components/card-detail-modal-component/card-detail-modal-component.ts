@@ -12,9 +12,15 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { provideNativeDateAdapter  } from '@angular/material/core';
 import { CardData } from '../../interfaces/card-data';
 
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+
 @Component({
   selector: 'app-card-detail-modal-component',
-  imports: [MatNativeDateModule, MatDialogModule, MatDatepickerModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
+  imports: [CommonModule, FormsModule, MatChipsModule, MatIconModule, MatNativeDateModule, MatDialogModule, MatDatepickerModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
   providers: [provideNativeDateAdapter()],
   templateUrl: './card-detail-modal-component.html',
   styleUrl: './card-detail-modal-component.scss',
@@ -28,8 +34,16 @@ export class CardDetailModalComponent {
   dueDate = signal(this.data.dueDate);
   columnId = signal(this.data.columnId);
   private dialogueRef = inject(MatDialogRef);
+  assignees = signal(this.data.assignees);
+  collaborators = signal(this.data.collaborators);
   //also list of colabolators etc.
-  
+
+  ngOnInit(){
+    console.log("List of collaborators");
+    
+    console.log(this.collaborators());
+    
+  }
 
 
   cardDetailsForm = new FormGroup({
@@ -49,7 +63,11 @@ export class CardDetailModalComponent {
 
 
   addNewCard(){
-    const newCard = this.cardService.addNewCard(this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId()).subscribe({
+    console.log("assignees for created new card!");
+    
+    console.log(this.assignees());
+    
+    const newCard = this.cardService.addNewCard(this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees()).subscribe({
       next: (result: CardData) => {
         this.dialogueRef.close(result)},
       error: () => this.showPopup()
@@ -57,7 +75,7 @@ export class CardDetailModalComponent {
   }
 
   updateCard(){
-    const updatedCard = this.cardService.updateCard(this.id(), this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId()).subscribe({
+    const updatedCard = this.cardService.updateCard(this.id(), this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees()).subscribe({
       next: (result: CardData) => {this.dialogueRef.close(result)},
       error: () => this.showPopup()
     })

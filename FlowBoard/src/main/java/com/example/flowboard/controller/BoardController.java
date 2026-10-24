@@ -1,6 +1,6 @@
 package com.example.flowboard.controller;
 
-import com.example.flowboard.model.BoardResponse;
+import com.example.flowboard.model.CollaboratorRequest;
 import com.example.flowboard.model.BoardSummary;
 import com.example.flowboard.model.CreateBoardRequest;
 import com.example.flowboard.service.BoardService;
@@ -30,6 +30,11 @@ public class BoardController {
         return boardService.getUserBoards(userId);
     }
 
+    @GetMapping("/{userId}/getJoinedBoards")
+    public ResponseEntity<ArrayList<BoardSummary>> getUserJoinedBoards(@Valid @PathVariable Long userId){
+        return boardService.getUserJoinedBoards(userId);
+    }
+
     @DeleteMapping("/{boardId}")
     public ResponseEntity<?> deleteBoard(@PathVariable Long boardId){
         return boardService.deleteBoard(boardId);
@@ -42,5 +47,14 @@ public class BoardController {
     @PatchMapping("/{boardId}")
     public ResponseEntity<BoardSummary> updateBoard(@PathVariable Long boardId, @RequestBody CreateBoardRequest boardRequest){
         return boardService.updateBoard(boardId, boardRequest);
+    }
+    @PostMapping("/addCollaborator")
+    public ResponseEntity<ArrayList<String>> addCollaboratorToBoard(@RequestBody CollaboratorRequest collaboratorRequest){
+        return boardService.addCollaborator(collaboratorRequest);
+    }
+
+    @DeleteMapping("/removeCollabolator")
+    public ResponseEntity<?> removeCollaborator(@RequestBody CollaboratorRequest collaboratorRequest){
+        return boardService.removeCollaborator(collaboratorRequest);
     }
 }

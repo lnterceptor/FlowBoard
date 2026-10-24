@@ -4,4 +4,5 @@ export interface CardData {
     dueDate: Date;
     description: string;
     positionInColumn: number;
+    assignees: string[];
 }

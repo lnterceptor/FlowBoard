@@ -34,9 +34,6 @@ export class ColumnDetailModalComponent {
   }
   
   sendColumnToBackend(){
-    console.log(this.id(), this.boardId());
-    console.log('problem later on')
-    
       if(this.id() != null){
         this.columnService.updateColumn(this.columnDetailsForm.value.title, this.id()).subscribe({
           next: (result: ColumnData) => {this.dialogueRef.close(result)},
@@ -44,7 +41,6 @@ export class ColumnDetailModalComponent {
         })
           }
       else{
-        console.log('problem later on 2')
         this.columnService.addNewColumn(this.columnDetailsForm.value.title, this.boardId()).subscribe({
           next: (result: ColumnData) => {this.dialogueRef.close(result)},
           error: () => this.showPopup()
