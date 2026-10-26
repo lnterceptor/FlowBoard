@@ -2,7 +2,6 @@
     width: 100%;
     margin-bottom: 2%;
     box-sizing: border-box;
-    background-color: #1E293B;
     border-radius: 15px;
     border: 2px solid antiquewhite;
 }
@@ -14,4 +13,20 @@
     color: #CBD5E1;
     font-size: large;
     font-weight: bold;
+}
+
+.card.due-soon {
+  background-color: #49391F;
+  border-left: 3px solid #FBBF24;
+}
+.card.overdue {
+  background-color: #4C252F;
+  border-left: 3px solid #F87171;
+}
+.card.done {
+  background-color: #1F4038;
+  border-left: 3px solid #4ADE80;
+}
+.card.upcoming{
+  background-color: #1E293B;
 }

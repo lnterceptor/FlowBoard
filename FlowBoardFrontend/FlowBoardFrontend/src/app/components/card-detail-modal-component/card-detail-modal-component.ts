@@ -18,10 +18,11 @@ import { FormsModule } from '@angular/forms';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelData } from '../../interfaces/label-data';
+import {MatCheckboxModule } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-card-detail-modal-component',
-  imports: [CommonModule, FormsModule, MatChipsModule, MatIconModule, MatNativeDateModule, MatDialogModule, MatDatepickerModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
+  imports: [MatCheckboxModule, CommonModule, FormsModule, MatChipsModule, MatIconModule, MatNativeDateModule, MatDialogModule, MatDatepickerModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
   providers: [provideNativeDateAdapter()],
   templateUrl: './card-detail-modal-component.html',
   styleUrl: './card-detail-modal-component.scss',
@@ -40,22 +41,23 @@ export class CardDetailModalComponent {
   avaibleLabels = signal<LabelData[]>(this.data.avaibleLabels);
   assignedLabels = signal<LabelData[]>(this.data.assignedLabels);
   //also list of colabolators etc.
-
-  ngOnInit(){
-    console.log("List of labels");
-    
-    console.log(this.assignedLabels());
-    
-  }
+  done = signal<boolean>(this.data.done);
 
   assignedLabelNames(){
     return this.assignedLabels().map(label => label.name)
+  }
+  ngOnInit(){
+    console.log("is done?");
+    
+    console.log(this.done());
+    
   }
 
   cardDetailsForm = new FormGroup({
     title: new FormControl(this.title(), [Validators.required]),
     dueDate: new FormControl(this.dueDate(), [Validators.required]),
-    description: new FormControl(this.description())    
+    description: new FormControl(this.description()),  
+    isDone: new FormControl(this.done() ?? false)
   })
 
   sendCardToBackend(){
@@ -70,7 +72,7 @@ export class CardDetailModalComponent {
 
   addNewCard(){
     
-    const newCard = this.cardService.addNewCard(this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels()).subscribe({
+    const newCard = this.cardService.addNewCard(this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels(),  this.cardDetailsForm.value.isDone!).subscribe({
       next: (result: CardData) => {
         this.dialogueRef.close(result)},
       error: () => this.showPopup()
@@ -78,7 +80,7 @@ export class CardDetailModalComponent {
   }
 
   updateCard(){
-    const updatedCard = this.cardService.updateCard(this.id(), this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels()).subscribe({
+    const updatedCard = this.cardService.updateCard(this.id(), this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels(), this.cardDetailsForm.value.isDone!).subscribe({
       next: (result: CardData) => {this.dialogueRef.close(result)},
       error: () => this.showPopup()
     })

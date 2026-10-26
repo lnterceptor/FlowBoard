@@ -8,4 +8,5 @@ export interface CardData {
     positionInColumn: number;
     assignees: string[];
     labels: LabelData[];
+    done: boolean;
 }

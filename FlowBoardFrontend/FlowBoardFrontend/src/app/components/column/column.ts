@@ -41,7 +41,8 @@ import { LabelData } from '../../interfaces/label-data';
           [description]="card.description"
           [title]="card.title"
           [columnId]="this.id()"
-          [dueDate]="this.dueDate"
+          [dueDate]="card.dueDate"
+          [done]="card.done"
           [assignees]="card.assignees"
           [collaborators]="this.collaborators()"
           [assignedLabels]="card.labels"
@@ -63,11 +64,10 @@ export class Column {
   title = input<string>();
   position_on_board = input<number>();
   cards = input<CardData[]>([]);
-  dueDate: Date = new Date();
   boardId = input<number>();
   collaborators = input<string[]>();
   avaibleLabels = input<LabelData[]>();
-
+  
   constructor(private dialog: MatDialog, private cardService: CardService, private columnService: ColumnService){};
   
   updateColumn(){

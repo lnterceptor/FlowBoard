@@ -4,12 +4,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardDetailModalComponent } from '../card-detail-modal-component/card-detail-modal-component';
 import { ColumnService } from '../../services/column-service';
 import { LabelData } from '../../interfaces/label-data';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-card',
-  imports: [],
+  imports: [NgClass],
   template: `
-    <div class="card">
+    <div class="card" [ngClass]="getDateStatus()">
     <p class="title">{{title()}}</p>
     <p class="description">  {{description()}} id of card is {{id()}} </p>
     <ul>
@@ -36,6 +37,7 @@ export class Card {
   positionInColumn = input<number>();
   columnId = input<number>();
   dueDate = input<Date>();
+  done = input<boolean>();
   title = input<string>();
   assignees = input<string[]>();
   collaborators = input<string[]>();
@@ -47,7 +49,7 @@ export class Card {
   openCardDetails(){
     const dialogRef = this.dialog.open(CardDetailModalComponent, {
     disableClose: true,
-    data:{id: this.id(), dueDate: this.dueDate(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels()}
+    data:{id: this.id(), dueDate: this.dueDate(), done: this.done(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels()}
   });
   dialogRef.afterClosed().subscribe((card: CardData | number | undefined) =>{
     if(!card){
@@ -65,4 +67,30 @@ export class Card {
   //      data:{id:id, amount:transaction.amount, category:transaction.category, date:transaction.date_of_transaction, description:transaction.description}
   //  });
   }
+
+  
+  getDateStatus(){    
+    if(this.done()){
+      return 'done'
+    }
+    const now = new Date();
+    
+    const today = [
+      now.getFullYear(),
+      String(now.getMonth() + 1).padStart(2,"0"),
+      String(now.getDate()).padStart(2,"0"),
+    ].join("-");
+    
+    
+    if(today > this.dueDate()!.toString()){
+      return 'overdue';
+    }
+    else if(today == this.dueDate()!.toString()){
+      return 'due-soon';
+    }
+    else{
+      return 'upcoming'
+    }
+  }
+
 }

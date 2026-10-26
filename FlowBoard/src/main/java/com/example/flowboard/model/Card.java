@@ -24,6 +24,11 @@ public class Card {
 
     @Getter
     @Setter
+    @Column(name = "completed", nullable = false)
+    boolean done;
+
+    @Getter
+    @Setter
     String description;
 
     @Getter

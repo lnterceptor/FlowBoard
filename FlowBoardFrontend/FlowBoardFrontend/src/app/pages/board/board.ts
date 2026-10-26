@@ -47,9 +47,6 @@ export class Board {
         this.description = board.description;
         this.collaborators = board.collaborators;
         this.labels = board.labels;
-
-        console.log("labels");   
-        console.log(this.labels);
         
         this.columns = this.columnService.columns;
       }}

@@ -94,15 +94,19 @@ public class CardService {
         card.setPositionInColumn((long) column.getCards().size());
         card.setDueDate(createCardRequest.dueDate());
         card.setCreationDate(Instant.now());
+        card.setDone(createCardRequest.done());
 
-        for(String assignee: createCardRequest.assignees()) {
-            User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
-            card.addAssignee(user);
+        if(createCardRequest.assignees() != null) {
+            for (String assignee : createCardRequest.assignees()) {
+                User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+                card.addAssignee(user);
+            }
         }
-
-        for(LabelRequest label: createCardRequest.labels()){
-            Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), column.getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
-            card.addLabel(newLabel);
+        if(createCardRequest.labels() != null) {
+            for (LabelRequest label : createCardRequest.labels()) {
+                Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), column.getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+                card.addLabel(newLabel);
+            }
         }
 
         column.setLastUpdateDate(Instant.now());
@@ -157,16 +161,18 @@ public class CardService {
         card.setDescription(newCard.description());
         card.setDueDate(newCard.dueDate());
         card.setLastUpdateDate(Instant.now());
+        card.setDone(newCard.done());
 
         card.getAssignees().removeIf(user -> !newCard.assignees().contains(user.getUsername()));
 
 
         HashSet<String> currentAssignees = (HashSet<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toSet());
-
-        for(String assignee: newCard.assignees()) {
-            if (!currentAssignees.contains(assignee)) {
-                User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
-                card.addAssignee(user);
+        if(newCard.assignees() != null) {
+            for (String assignee : newCard.assignees()) {
+                if (!currentAssignees.contains(assignee)) {
+                    User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+                    card.addAssignee(user);
+                }
             }
         }
 
@@ -178,14 +184,15 @@ public class CardService {
         }
 
         HashSet<String> currentLabels = (HashSet<String>) card.getLabels().stream().map(Label::getName).collect(Collectors.toSet());
-
-        for(LabelRequest label: newCard.labels()){
-            if(!currentLabels.contains(label.name())){
-                Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), card.getColumn().getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
-                card.addLabel(newLabel);
+        if(newCard.labels() != null) {
+            for (LabelRequest label : newCard.labels()) {
+                if (!currentLabels.contains(label.name())) {
+                    Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), card.getColumn().getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+                    card.addLabel(newLabel);
+                }
             }
         }
-        //entityManager.flush();
+
         return ResponseEntity.ok(CardResponse.from(card));
     }
 

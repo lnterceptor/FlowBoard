@@ -26,7 +26,8 @@ export class CardService {
             positionInColumn: item.positionInColumn,
             description:item.description,
             assignees: item.assignees,
-            labels: item.labels.sort((a,b) => a.name.localeCompare(b.name))
+            labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
+            done: item.done
           }])
         }
         this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);
@@ -50,21 +51,22 @@ export class CardService {
               description:item.description,
               positionInColumn: item.positionInColumn,
               assignees: item.assignees,
-              labels: item.labels.sort((a,b) => a.name.localeCompare(b.name))
+              labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
+              done: item.done
             }])
           }
       return this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);    
     }
 
 
-    addNewCard(title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[]): Observable<CardData>{
+    addNewCard(title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{
       const localDate = [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
       ].join('-');
 
-      const newCard = {title, description, dueDate: localDate, columnId, assignees, labels};
+      const newCard = {title, description, dueDate: localDate, columnId, assignees, labels, done};
       return this.http.post<CardData>(this.apiUrl + '/', newCard);
     }
     
@@ -72,14 +74,14 @@ export class CardService {
       return this.http.delete<void>(this.apiUrl+ '/' + id);
     }
 
-    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[]): Observable<CardData>{
-      const localDate = [
+    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{
+      /*const localDate = [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
-      ].join('-');
+      ].join('-');*/
 
-      const updatedCard = {title, description, dueDate: localDate, columnId, assignees, labels};
+      const updatedCard = {title, description, dueDate: dueDate, columnId, assignees, labels, done};
       return this.http.patch<CardData>(this.apiUrl + '/' + id, updatedCard);
     }
 }
