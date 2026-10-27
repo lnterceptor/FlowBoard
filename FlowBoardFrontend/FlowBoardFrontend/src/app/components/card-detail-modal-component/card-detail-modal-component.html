@@ -1,4 +1,5 @@
-<div class="card-detail-modal">
+<div [class.card-detail-modal]="id() != null">
+    <div class="card-details">
     <form [formGroup]="cardDetailsForm" (ngSubmit)="sendCardToBackend()">
         <mat-form-field class="input-field">    
             <mat-label>Title:</mat-label>
@@ -87,4 +88,42 @@
 
     </form>
 
+</div>
+    @if(id() != null){
+    <div class="comment-details">
+        <h1>Comments</h1>
+        <div class="comments-container">
+        @for(comment of comments(); track comment.commentId){
+            <div class="comment">
+                @if (editingCommentId === comment.commentId) {
+                    <input
+                        #editInput
+                        [value]="comment.content"
+                        (keyup.enter)="updateComment(comment.commentId, editInput.value)"
+                        (keyup.escape)="editingCommentId = null"
+                    />
+
+                } @else {
+                    <p (click)="startEditingComment(comment.commentId)"
+                        class="editable-comment">
+                        {{ comment.content }}
+                        <button matButton="outlined" class="button-cancel" type="button" (click)="deleteComment(comment.commentId)">delete</button>
+
+                    </p>
+                }
+
+    
+            </div>
+        }
+        </div>
+
+        <div>
+        <mat-form-field class="input-field">  
+            <mat-label>Comment:</mat-label>
+            <input #commentInput matInput type="text"
+                (keydown.enter)="addComment(commentInput.value); commentInput.value = ''" />
+        </mat-form-field>
+        </div>
+    </div>
+    }
 </div>

@@ -85,6 +85,14 @@ public class Card {
     @ToString.Exclude
     BoardColumn column;
 
+
+    @OneToMany(
+            mappedBy = "card",
+            fetch = FetchType.LAZY
+    )
+    private List<Comment> card = new ArrayList<>();
+
+
     public void addAssignee(User user) {
         this.assignees.add(user);
         user.getAssignedCards().add(this);

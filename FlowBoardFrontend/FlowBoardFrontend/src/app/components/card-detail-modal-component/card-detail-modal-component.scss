@@ -55,3 +55,36 @@
 .error{
     color: red;
 }
+
+.card-detail-modal{
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  gap: 40px;
+  padding: 24px;
+  background: transparent;
+  max-height: 80vh;
+}
+.card-details{
+  max-height: 80vh;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+}
+.comment-details{
+    max-height: 80vh;
+    background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+}
+
+.comments-container {
+  max-height: 70%;
+  overflow-y: auto;
+}
+
+.comment {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+}

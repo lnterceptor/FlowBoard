@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { ColumnService } from './column-service';
 import { LabelData } from '../interfaces/label-data';
+import { CommentData } from '../interfaces/comment-data';
 
 @Injectable({
   providedIn: 'root',
@@ -84,4 +85,24 @@ export class CardService {
       const updatedCard = {title, description, dueDate: dueDate, columnId, assignees, labels, done};
       return this.http.patch<CardData>(this.apiUrl + '/' + id, updatedCard);
     }
+
+    postComment(cardId: number, userId: number, content: string){
+      const comment = {userId, content}
+      return this.http.post<CommentData>(this.apiUrl + '/' + cardId + '/comments/', comment);
+    }
+    
+    getComments(cardId: number): Observable<CommentData[]>{
+      return this.http.get<CommentData[]>(this.apiUrl + '/' + cardId + '/comments/');
+    }
+
+    deleteComment(cardId: number, commentId: number): Observable<void>{
+      return this.http.delete<void>(this.apiUrl + '/' + cardId + '/comments/' + commentId);
+    }
+
+    updateComment(cardId: number, userId: number, content: string, commentId: number): Observable<CommentData>{
+      const comment = {userId, content}
+      return this.http.patch<CommentData>(this.apiUrl + '/' + cardId + '/comments/' + commentId, comment);
+    }
+    
+
 }

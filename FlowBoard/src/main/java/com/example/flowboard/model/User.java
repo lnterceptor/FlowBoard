@@ -52,6 +52,17 @@ public class User {
     )
     private List<Board> boards = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY
+    )
+    private List<Comment> comments = new ArrayList<>();
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setUser(this);
+    }
+
     @Getter
     @ManyToMany(mappedBy = "collaborators", fetch = FetchType.LAZY)
     private Set<Board> joinedBoards = new HashSet<>();

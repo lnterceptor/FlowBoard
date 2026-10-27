@@ -48,6 +48,8 @@ export class Card {
 
   openCardDetails(){
     const dialogRef = this.dialog.open(CardDetailModalComponent, {
+    minWidth: '75vw',
+    minHeight: '80vh',
     disableClose: true,
     data:{id: this.id(), dueDate: this.dueDate(), done: this.done(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels()}
   });

@@ -19,6 +19,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { LabelData } from '../../interfaces/label-data';
 import {MatCheckboxModule } from '@angular/material/checkbox';
+import { CommentData } from '../../interfaces/comment-data';
 
 @Component({
   selector: 'app-card-detail-modal-component',
@@ -42,15 +43,54 @@ export class CardDetailModalComponent {
   assignedLabels = signal<LabelData[]>(this.data.assignedLabels);
   //also list of colabolators etc.
   done = signal<boolean>(this.data.done);
+  comments = signal<CommentData[]>([]);
+  editingCommentId: number | null = null;
+
+
 
   assignedLabelNames(){
     return this.assignedLabels().map(label => label.name)
   }
   ngOnInit(){
-    console.log("is done?");
+    if(this.id()){
+      this.getComments();
+    }
+  }
+  getComments(){
+      this.cardService.getComments(this.id()).subscribe({
+        next:(result: CommentData[]) => {
+          this.comments.set(result);
+        }
+      })
+  }
+  addComment(comment: string){
+    this.cardService.postComment(this.id(),6, comment).subscribe({
+      next:(result: CommentData) => {
+        this.comments.update(comments => [...comments, result])
+      }
+    })
     
-    console.log(this.done());
+    //todo: once user registration is added change it 6 to id of current user 
+  }
+
+  startEditingComment(commentId: number) {
+    this.editingCommentId = commentId;
+  }
+
+updateComment(commentId: number, newContent: string) {
+  this.cardService.updateComment(this.id(), 6, newContent, commentId).subscribe({
+        next:(result: CommentData) => {
+          this.comments.update(comments => comments.map(comment => comment.commentId !== result.commentId ? comment: result))
     
+        }
+      })
+  this.editingCommentId = null;
+}
+
+
+  deleteComment(commentId: number){
+    this.cardService.deleteComment(this.id(), commentId).subscribe({
+      next:() => { this.comments.update(comments => comments.filter(comment => comment.commentId != commentId)) }});
   }
 
   cardDetailsForm = new FormGroup({
