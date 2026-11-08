@@ -20,6 +20,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { LabelData } from '../../interfaces/label-data';
 import {MatCheckboxModule } from '@angular/material/checkbox';
 import { CommentData } from '../../interfaces/comment-data';
+import { AuthService } from '../../services/auth-service';
+import { User } from '../../interfaces/user';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-card-detail-modal-component',
@@ -45,7 +48,15 @@ export class CardDetailModalComponent {
   done = signal<boolean>(this.data.done);
   comments = signal<CommentData[]>([]);
   editingCommentId: number | null = null;
+  user : User | null = null;
+  
+  authService = inject(AuthService);
 
+  constructor(private http:HttpClient){
+    this.authService.currentUser.subscribe(
+      user => this.user = user
+    )
+  }
 
 
   assignedLabelNames(){
@@ -64,13 +75,12 @@ export class CardDetailModalComponent {
       })
   }
   addComment(comment: string){
-    this.cardService.postComment(this.id(),6, comment).subscribe({
+    this.cardService.postComment(this.id(), this.user?.userId!, comment).subscribe({
       next:(result: CommentData) => {
         this.comments.update(comments => [...comments, result])
       }
     })
     
-    //todo: once user registration is added change it 6 to id of current user 
   }
 
   startEditingComment(commentId: number) {
@@ -78,7 +88,7 @@ export class CardDetailModalComponent {
   }
 
 updateComment(commentId: number, newContent: string) {
-  this.cardService.updateComment(this.id(), 6, newContent, commentId).subscribe({
+  this.cardService.updateComment(this.id(), this.user?.userId!, newContent, commentId).subscribe({
         next:(result: CommentData) => {
           this.comments.update(comments => comments.map(comment => comment.commentId !== result.commentId ? comment: result))
     

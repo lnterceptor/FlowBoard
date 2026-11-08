@@ -1,7 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { BoardService } from '../../services/board-service';
 import { BoardSummary } from '../../interfaces/board-summary';
 import { CardOfBoard } from '../../components/card-of-board/card-of-board';
+import { AuthService } from '../../services/auth-service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home-page',
@@ -10,8 +12,8 @@ import { CardOfBoard } from '../../components/card-of-board/card-of-board';
   styleUrl: './home-page.scss',
 })
 export class HomePage {
-  constructor(private boardService:BoardService){}
-
+  constructor(private boardService:BoardService, private authService: AuthService){}
+  router = inject(Router);
   //boards: BoardSummary[] = [];
   boards = signal<BoardSummary[]>([]);
   joinedBoards = signal<BoardSummary[]>([]);
@@ -19,5 +21,13 @@ export class HomePage {
     await this.boardService.getBoardsFromBackend();
     this.boards = this.boardService.boards;
     this.joinedBoards = this.boardService.joinedBoards;
+  }
+  logout(){
+    this.authService.logout();
+    this.router.navigateByUrl('/sign-in');
+  }
+
+  checkProfile(){
+    this.router.navigateByUrl('/profile');
   }
 }

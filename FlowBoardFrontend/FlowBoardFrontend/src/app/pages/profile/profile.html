@@ -1,0 +1,52 @@
+<section class="page-sections">
+    <h1 style="color: #CBD5E1">Profile settings</h1>
+    <section id="inputs">
+        <div>
+            <div class="section-title">Personal information</div>
+            <div class="section-description">Update account details</div>
+        </div>
+        <div class="input-field">
+                <label for="editUsername" class="label-text">Username:</label>
+                <input type=text 
+                        id = "editUsername"
+                        [(ngModel)]="editedUsername"
+                />
+        </div>
+        <div class="input-field">
+                <label for="editEmail" class="label-text">Email:</label>
+                <input type=text 
+                        id = "editEmail"
+                        [(ngModel)]="editedEmail"
+                />
+        </div>
+        <button matButton="outlined" class="input-button" type="button" (click)="saveChanges()">Save changes</button>
+
+    </section>
+
+    <section id="inputs">
+        <div>
+            <div class="section-title">Security</div>
+            <div class="section-description">Manage account security</div>
+        </div>
+                <button matButton="outlined" 
+                class="input-button" 
+                id = "editPassword"
+                (click)="editPassword()">Change password</button>
+    </section>
+
+    <section id="delete-inputs">
+        <div>
+            <div class="delete-title">Delete account</div>
+            <div class="section-description">Permamently delete your account and all associated data. This action cannot be undone</div>
+        </div>
+                <button matButton="outlined" 
+                class="delete-button" 
+                id = "deleteAccount"
+                (click)="deleteAccount()">Delete account</button>
+    </section>
+
+</section>
+
+
+
+

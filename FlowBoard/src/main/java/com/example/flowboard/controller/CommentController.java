@@ -19,6 +19,7 @@ public class CommentController {
 
     @GetMapping("/")
     public ResponseEntity<ArrayList<CommentResponse>> getComments(@PathVariable Long cardId){
+
         return commentService.getCommentsFromCard(cardId);
     }
 

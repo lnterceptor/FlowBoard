@@ -1,9 +1,11 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { BoardSummary } from '../interfaces/board-summary';
 import { BehaviorSubject, Observable, of, tap, firstValueFrom, from, map  } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { CollaboratorData } from '../interfaces/collaborator-data';
 import { LabelData } from '../interfaces/label-data';
+import { User } from '../interfaces/user';
+import { AuthService } from './auth-service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,13 +14,20 @@ export class BoardService {
   private apiUrl = 'http://localhost:8080/api/boards'
   boards = signal<BoardSummary[]>([]);
   joinedBoards = signal<BoardSummary[]>([]);
-  private userId = 4; //replace with actual userId after connecting user to frontend
+  //private userId = 4; //replace with actual userId after connecting user to frontend
+  user : User | null = null;
+  authService = inject(AuthService);
 
-  constructor(private http:HttpClient){}
+  constructor(private http:HttpClient){
+    this.authService.currentUser.subscribe(
+      user => this.user = user
+    )
+
+  }
 
   async getBoardsFromBackend(){
     try{
-      const data = await firstValueFrom(this.http.get<BoardSummary[]>(this.apiUrl+'/' + this.userId));
+      const data = await firstValueFrom(this.http.get<BoardSummary[]>(this.apiUrl+'/' + this.user?.userId));
       this.boards.set([]);
       for(const item of data){
             this.boards.update(
@@ -30,7 +39,7 @@ export class BoardService {
               labels: item.labels.sort((a,b) => a.name.localeCompare(b.name))
             }])}
 
-    const joinedBoards = await firstValueFrom(this.http.get<BoardSummary[]>(this.apiUrl+'/' + this.userId + '/getJoinedBoards'));
+    const joinedBoards = await firstValueFrom(this.http.get<BoardSummary[]>(this.apiUrl+'/' + this.user?.userId + '/getJoinedBoards'));
       this.joinedBoards.set([]);
       for(const item of joinedBoards){
             this.joinedBoards.update(
@@ -50,11 +59,11 @@ export class BoardService {
     return this.http.delete<void>(this.apiUrl+'/'+ boardId);
   }
   updateBoard(title: string, desc: string, boardId: number): Observable<BoardSummary>{
-    const dataToSend = {name: title, desc , userId: this.userId};
+    const dataToSend = {name: title, desc , userId: this.user?.userId};
     return this.http.patch<BoardSummary>(this.apiUrl+'/'+ boardId, dataToSend);
   }
   createNewBoard(title: string, desc: string): Observable<BoardSummary>{
-    const dataToSend = {name: title, desc , userId: this.userId};
+    const dataToSend = {name: title, desc , userId: this.user?.userId};
     return this.http.post<BoardSummary>(this.apiUrl+'/', dataToSend);
   }
 

@@ -114,7 +114,7 @@ public class ColumnService {
             return ResponseEntity.ok(columnResponses);
     }
 
-    public ResponseEntity<?> getColumnsFromBoard(Long boardId){
+    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(Long boardId){
         Board board = boardRepository.findBoardById(boardId).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
         ArrayList<ColumnResponse> columns = new ArrayList<>();
         for(BoardColumn column: board.getColumns()){

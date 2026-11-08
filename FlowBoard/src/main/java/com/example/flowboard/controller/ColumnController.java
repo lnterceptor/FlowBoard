@@ -7,6 +7,8 @@ import com.example.flowboard.service.ColumnService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/columns")
@@ -39,9 +41,8 @@ public class ColumnController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<?> getColumnsFromBoard(@PathVariable Long boardId){
+    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(@PathVariable Long boardId){
         System.out.println("Columns given");
         return columnService.getColumnsFromBoard(boardId);
     }
-
 }

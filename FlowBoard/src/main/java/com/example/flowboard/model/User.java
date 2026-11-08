@@ -20,12 +20,12 @@ public class User {
 
     @Setter
     @Getter
-    @Column(unique = true)
+    @Column(nullable = false)
     private String username;
 
     @Setter
     @Getter
-    @Column
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Setter
@@ -35,8 +35,8 @@ public class User {
 
     @Setter
     @Getter
-    @Column
-    private String passwordHash;
+    @Column(nullable = false)
+    private String password;
 
     @Setter
     @Getter
@@ -87,14 +87,13 @@ public class User {
     public User(
             String username,
             String email,
-            String passwordHash,
+            String password,
             Instant createdAt
     ){
         this.username = username;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.createdAt = createdAt;
-        //update id
     }
 
 }
