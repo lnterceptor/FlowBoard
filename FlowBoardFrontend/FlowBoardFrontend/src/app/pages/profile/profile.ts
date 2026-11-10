@@ -8,11 +8,12 @@ import { UserService } from '../../services/user-service';
 import { MatDialog } from '@angular/material/dialog';
 import { PasswordChange } from '../../components/password-change/password-change';
 import { FormsModule } from '@angular/forms';
+import { MatIcon } from '@angular/material/icon';
 
 
 @Component({
   selector: 'app-profile',
-  imports: [ReactiveFormsModule, FormsModule],
+  imports: [ReactiveFormsModule, FormsModule, MatIcon],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -49,8 +50,10 @@ export class Profile {
 
   editPassword(){
     const dialogRef = this.dialog.open(PasswordChange, {
-        minWidth: '20vw',
-        minHeight: '25vh',
+        width: '60vw',
+        height: '65vh',
+        maxWidth: '60vw',
+        maxHeight: '65vh',
         data:{userId: this.user!.userId!}
       });
   }
@@ -72,6 +75,10 @@ export class Profile {
     const message = 'Unknown error appeared!';
     //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
     return true;
+  }
+
+  goToMainPage(){
+    this.router.navigateByUrl(`/`);
   }
 
 }

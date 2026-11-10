@@ -1,7 +1,17 @@
 <div class = "list-of-boards">
 
-<button (click)="checkProfile()">Profile</button>
-<button (click)="logout()">logout</button>
+<div class="title-box">
+        <div class = "title">Kanban board application</div>
+        <button mat-icon-button aria-label="Settings" class="settings-button" (click)="toggleMenu()"><mat-icon>settings</mat-icon></button>
+        
+        @if (menuOpen) {
+            <div class="dropdown-menu">
+            <a (click)="checkProfile()">Profile</a>
+            <a (click)="logout()">Logout</a>
+            </div>
+        }
+
+</div>
 
 <p class="title">User boards</p>
 <ul class="grid-container">
@@ -12,8 +22,8 @@
         [title]="board.title"
         />
     }
-    <app-card-of-board 
-        title="add new board"
+    <app-add-new-board-card
+        title="create new board"
         />
 </ul>
 </div>

@@ -2,36 +2,44 @@ import { Component, inject, input, signal } from '@angular/core';
 import { UserService } from '../../services/user-service';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-password-change',
-  imports: [FormsModule],
+  imports: [FormsModule, MatFormFieldModule],
   template: `
-    <div class = "input-array">
-      <div class="input-field">
-                <label for="currentPassword" class="label-text">Current password:</label>
+    
+    <div class = "modal-detail">
+      <div class="title">Change password</div>
+      <div class = "inputs">
+      <mat-form-field class="input-field">
+                <div class="text-over-input">Current password</div>
+                <mat-label for="currentPassword" class="label-text">Current password:</mat-label>
                 <input type="password"
                         id = "currentPassword"
                         placeholder="Current password"
                         [(ngModel)]="currentPassword"
                 />
-        </div>
-        <div class="input-field">
-                <label for="newPassword" class="label-text">New password:</label>
+        </mat-form-field>
+        <mat-form-field class="input-field">
+          <div class="text-over-input">New password</div>
+                <mat-label for="newPassword" class="label-text">New password:</mat-label>
                 <input type="password"
                         id = "newPassword"
                         placeholder="New password"
                         [(ngModel)]="newPassword"
                 />
-        </div>
-        <div class="input-field">
-                <label for="repeatNewPassword" class="label-text">Repeat new password:</label>
+        </mat-form-field>
+        <mat-form-field class="input-field">
+          <div class="text-over-input">Repeat new password</div>
+                <mat-label for="repeatNewPassword" class="label-text">Repeat new password:</mat-label>
                 <input type="password"
                         id = "repeatNewPassword"
                         placeholder="Repeat new password"
                         [(ngModel)]="repeatNewPassword"
                 />
-        </div>
+        </mat-form-field>
+      </div>
       <button matButton="outlined" class="input-button" type="button" (click)="changePassword()">Change Password</button>
 
     </div>

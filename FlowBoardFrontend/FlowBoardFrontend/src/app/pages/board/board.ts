@@ -19,10 +19,13 @@ import { BoardService } from '../../services/board-service';
 import { ModifyCollaborator } from '../../components/modify-collaborator/modify-collaborator';
 import { ModifyLabels } from '../../components/modify-labels/modify-labels';
 import { LabelData } from '../../interfaces/label-data';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
+import { AuthService } from '../../services/auth-service';
 
 @Component({
   selector: 'app-board',
-  imports: [Column, DragDropModule],
+  imports: [Column, DragDropModule, MatButtonModule, MatIcon],
   templateUrl: './board.html',
   styleUrl: './board.scss',
 })
@@ -34,8 +37,12 @@ export class Board {
   description:string = "";
   collaborators: string[] = [];
   labels: LabelData[] = [];
+  menuOpen = false;
 
-  constructor(private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService){}
+  toggleMenu() {
+    this.menuOpen = !this.menuOpen;
+  }
+  constructor(private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService, private authService: AuthService){}
 
   async ngOnInit(){
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -76,6 +83,8 @@ export class Board {
   addNewColumn(){
     const dialogRef = this.dialog.open(ColumnDetailModalComponent, {
         disableClose: true,
+        width: '60vw',
+        height: '30vh',
         data:{boardId: this.id}
       });
       dialogRef.afterClosed().subscribe((column: ColumnData) =>{
@@ -90,7 +99,7 @@ export class Board {
   modifyCollabolators(){
     const dialogRef = this.dialog.open(ModifyCollaborator, {
       width: '60vw',
-      height: '60vh',
+      height: '55vh',
       disableClose: true,
       data:{boardId: this.id, collaborators: this.collaborators}
     })
@@ -101,6 +110,8 @@ export class Board {
   modifyLabels(){
     const dialogRef = this.dialog.open(ModifyLabels, {
       disableClose: true,
+      width: '60vw',
+      maxHeight: '80vh',
       data:{boardId: this.id, labels: this.labels}
     });
     dialogRef.afterClosed().subscribe((labels: LabelData[]) =>{
@@ -110,6 +121,8 @@ export class Board {
 
   updateBoard(){
     const dialogRef = this.dialog.open(BoardsDetailModalComponent, {
+      width: '55vw',
+      height: '45vh',
       disableClose: true,
       data:{id: this.id, title: this.title, description: this.description}
     });
@@ -124,6 +137,13 @@ export class Board {
   }
   goToMainPage(){
     this.router.navigateByUrl(`/`);
+  }
+  goToProfile(){
+    this.router.navigateByUrl('/profile');
+  }
+  logout(){
+    this.authService.logout();
+    this.router.navigateByUrl('/sign-in');
   }
 
   deleteBoard(){

@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule,MatDialogModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
   template: `
     <div class="card-detail-modal">
-    <form [formGroup]="collaboratorDetailsForm" (ngSubmit)="sendCollaboratorRequestToBackend()">
+    <form [formGroup]="collaboratorDetailsForm" class="board-form" (ngSubmit)="sendCollaboratorRequestToBackend()">
         <mat-form-field class="input-field">    
             <mat-label>Username:</mat-label>
             <input matInput type=text id="username-input" formControlName="username"/>
@@ -24,7 +24,7 @@ import { CommonModule } from '@angular/common';
           </mat-error> 
     </mat-form-field>
 
-    <ul class = collabolator-list>
+    <ul class = "collabolator-list">
       @for (collaborator of collaborators(); track collaborator){
         <div class="collaborator-element">
           <div class="username">{{collaborator}}</div>
@@ -36,9 +36,7 @@ import { CommonModule } from '@angular/common';
     
     <div class="button-row">
             <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
-            <div button-row-second-part>
-                <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
-            </div>
+            <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
     </div>
 
     </form>

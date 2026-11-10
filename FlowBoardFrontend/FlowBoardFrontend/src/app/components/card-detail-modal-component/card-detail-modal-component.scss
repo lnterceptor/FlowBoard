@@ -1,39 +1,127 @@
+.background-of-modal{
+    background-color: #273449;
+    width: 100%;
+    height: 100%;
+}
+
+.card-detail-modal{
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  gap: 40px;
+  padding: 24px;
+  background: transparent;
+  max-height: 80vh;
+}
+
+.card-details{
+  max-height: 80vh;
+  background: #3D506A;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+}
+
+.comment-details{
+  max-height: 80vh;
+  background: #3D506A;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px #0002;
+}
+
+
+
+
+
+
+
+
+.select-row{
+  padding-left: 5%;
+  padding-right: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 
 .button-row{
-    max-width: 600px;
+    padding-left: 5%;
+    padding-right: 5%;
+    padding-bottom: 15px;
     display: flex;
     flex-direction: row;
-    align-items: space-between;
     justify-content: space-between;
 }
+
 
 .button-row-second-part{
     display: flex;
     flex-direction: row;
-    align-items:flex-start;
-    justify-content: flex-start;
+    gap: 20px;
 }
 
 .button-accept{
-    background-color: rgb(164, 235, 253);
-    border-radius: 15px;
-    margin: 8px 8px 0px 8px;
+    background: transparent;
+    color: #22C55E ;
+    border: 1px solid #22C55E ;
 }
 
-.button-delete{
-    background-color: rgb(248, 51, 25);
-    border-radius: 15px;
-    margin: 8px 8px 8px 0;
+.delete-button{
+    background: transparent;
+    color: #b91c1c;
+    border: 1px solid #dc2626;
 }
 
 .button-cancel{
-    border-radius: 15px;
-    margin: 8px 8px 8px 0;
+    background: transparent;
+    color: #A9B8CC;
+    border: 1px solid #A9B8CC;
 }
 
-.input-field{
-    margin: 10px 10px 10px 10px;
-    background-color: white;
+:host ::ng-deep .checkbox-input .mdc-label {
+    color: #E8EDF2;
+}
+
+:host ::ng-deep .custom-label {
+    color: #E8EDF2;
+}
+
+
+.title-box{
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 3%;
+  width: 90%;
+}
+.select-field{
+  width: 40%;
+}
+.input-description-field {
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 3%;
+  width: 90%;
+
+}
+
+.input-description-field textarea {
+  height: 48px;
+  resize: none;
+}
+
+.date-row{
+  padding-left: 5%;
+  padding-right: 5%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.is-done-checkbox{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  transform: translateY(-10px);
 }
 
 
@@ -56,28 +144,7 @@
     color: red;
 }
 
-.card-detail-modal{
-  display: grid;
-  grid-template-columns: 4fr 1fr;
-  gap: 40px;
-  padding: 24px;
-  background: transparent;
-  max-height: 80vh;
-}
-.card-details{
-  max-height: 80vh;
-  background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px #0002;
-}
-.comment-details{
-    max-height: 80vh;
-    background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px #0002;
-}
+
 
 .comments-container {
   max-height: 70%;

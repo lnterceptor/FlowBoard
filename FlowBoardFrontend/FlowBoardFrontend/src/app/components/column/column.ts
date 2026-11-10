@@ -27,12 +27,18 @@ import { LabelData } from '../../interfaces/label-data';
     <span class = "title">{{title()}} </span>
     <button mat-icon-button aria-label="Settings" class="settings-button" (click)="updateColumn()"> <mat-icon>settings</mat-icon> </button>
 </div >
-  <ul
+  <div
       cdkDropList
+      class="cards"
       cdkDropListOrientation="vertical"
       [cdkDropListData]="cards()"
       (cdkDropListDropped)="drop($event)"
     >
+    <app-add-new-card 
+    [columnId]="this.id()"
+    [collaborators]="this.collaborators()"
+    [avaibleLabels]="this.avaibleLabels()">
+    </app-add-new-card>
     @for (card of cards(); track card.positionInColumn) {
         <app-card 
           cdkDrag
@@ -49,12 +55,8 @@ import { LabelData } from '../../interfaces/label-data';
           [avaibleLabels]="this.avaibleLabels()"
         />
     }
-    <app-add-new-card 
-    [columnId]="this.id()"
-    [collaborators]="this.collaborators()"
-    [avaibleLabels]="this.avaibleLabels()">
-    </app-add-new-card>
-    </ul>
+    
+    </div>
   </div>
   `,
   styleUrl: './column.scss',
@@ -72,6 +74,8 @@ export class Column {
   
   updateColumn(){
     const dialogRef = this.dialog.open(ColumnDetailModalComponent, {
+            width: '60vw',
+            height: '30vh',
             disableClose: true,
             data:{boardId: this.boardId(), id: this.id(), title:this.title()}
           });

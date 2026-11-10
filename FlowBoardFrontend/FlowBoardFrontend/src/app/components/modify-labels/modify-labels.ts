@@ -14,7 +14,7 @@ import { LabelData } from '../../interfaces/label-data';
   imports: [CommonModule,MatDialogModule, ReactiveFormsModule, MatInputModule, MatFormFieldModule, MatButtonModule, MatSelectModule],
   template: `
     <div class="card-detail-modal">
-    <form [formGroup]="labelDetailsForm" (ngSubmit)="sendLabelRequestToBackend()">
+  <form [formGroup]="labelDetailsForm" class="boardForm" (ngSubmit)="sendLabelRequestToBackend()">
     
     <div>
     <mat-form-field class="input-field">    
@@ -22,39 +22,30 @@ import { LabelData } from '../../interfaces/label-data';
             <input matInput type=text id="username-input" formControlName="labelName"/>
             <mat-error
               *ngIf="showErrors && labelDetailsForm.get('labelName')?.hasError('required')">
-              Name is required.
+              Label name is required.
           </mat-error>
     </mat-form-field>
 
     <mat-form-field class="input-field">
       <mat-label>Choose color:</mat-label>
       <input matInput type="color" id="selected-color-input" formControlName="selectedColor"/>
-      <mat-error
-        *ngIf="showErrors && labelDetailsForm.get('selectedColor')?.hasError('required')">
-        Color is required.
-      </mat-error>
     </mat-form-field>
 
     </div>
 
-    <ul class = label-list>
+    <ul class = "label-list">
       @for (label of labels(); track label.name){
         <div class="label-element" [style.background-color]="label.color">
           <div class="name" >{{label.name}}</div>
-          <button matButton="outlined" (click)=deleteLabel(label.name)>delete</button>
+          <button matButton="outlined" class="button-delete"(click)=deleteLabel(label.name)>delete</button>
         </div>
       }
     </ul>
 
 
-    
-    
-    
     <div class="button-row">
-            <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
-            <div button-row-second-part>
-                <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
-            </div>
+        <button matButton="outlined" class="button-accept"  type="submit">Add label</button>
+        <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
     </div>
 
     </form>

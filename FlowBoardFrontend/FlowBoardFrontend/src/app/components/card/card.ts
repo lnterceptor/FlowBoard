@@ -5,28 +5,36 @@ import { CardDetailModalComponent } from '../card-detail-modal-component/card-de
 import { ColumnService } from '../../services/column-service';
 import { LabelData } from '../../interfaces/label-data';
 import { NgClass } from '@angular/common';
+import { MatIcon } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 
 @Component({
   selector: 'app-card',
-  imports: [NgClass],
+  imports: [NgClass, MatIcon, MatChipsModule],
   template: `
     <div class="card" [ngClass]="getDateStatus()">
-    <p class="title">{{title()}}</p>
-    <p class="description">  {{description()}} id of card is {{id()}} </p>
-    <ul>
-      @for(username of assignees(); track $index){
-       <div class = "description">{{ username }}</div>
-      }
-    </ul>
-    <ul>
-      @for(label of assignedLabels(); track label.name){
-        <div class = "description" [style.color]="label.color">{{label.name}}</div>
-      }
-    </ul>
+    <div class="title-paragraph">
+      <div class="title">{{title()}}</div>
+      <button mat-icon-button aria-label="Settings" class="settings-button" (click)="openCardDetails(); $event.stopPropagation()"><mat-icon>settings</mat-icon> </button>
+    </div>
+    <p class="description">  {{description()}} </p>
+    
+    <div class="chips">
+      <mat-chip-set aria-label="Selected labels">
+        @for (label of assignedLabels(); track label.name) {
+          <mat-chip [style.background-color]="label.color">
+            {{ label.name }}
+          </mat-chip>
+        }
+      </mat-chip-set>
+    </div> 
 
-    <button mat-icon-button (click)="openCardDetails(); $event.stopPropagation()">
-    Details, change to icon later
-    </button>
+    <div class="assignees">
+      @for(username of assignees(); track $index; let last = $last){
+       <div class = "assignee">{{ username }} @if(!last){,}</div>
+      }
+    </div>
+    
     </div>
   `,
   styleUrl: './card.scss',
@@ -48,8 +56,10 @@ export class Card {
 
   openCardDetails(){
     const dialogRef = this.dialog.open(CardDetailModalComponent, {
-    minWidth: '75vw',
-    minHeight: '80vh',
+    width: '80vw',
+    height: '75vh',
+    maxWidth: '80vw',
+    maxHeight: '75vh',
     disableClose: true,
     data:{id: this.id(), dueDate: this.dueDate(), done: this.done(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels()}
   });
@@ -65,9 +75,6 @@ export class Card {
     }
  
   })
-  //const dialogRef = this.dialog.open(AddTransaction, { disableClose: true,
-  //      data:{id:id, amount:transaction.amount, category:transaction.category, date:transaction.date_of_transaction, description:transaction.description}
-  //  });
   }
 
   

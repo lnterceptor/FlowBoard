@@ -1,10 +1,22 @@
 .card{
-    padding: 16px;
-    margin: 2%;
+    width: 13cqw;
+    margin-bottom: 2%;
+    box-sizing: border-box;
+    border-radius: 15px;
+    border: 2px solid antiquewhite;
     background-color: #1E293B;
+    height: 6cqh;
+    max-height: 6cqh;
+    justify-content: center;
 }
+
 .title{
     color: #38BDF8;
     font-size: large;
     font-weight: bold;
+
+    height: 0%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
