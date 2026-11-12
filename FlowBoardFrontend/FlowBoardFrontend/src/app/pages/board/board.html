@@ -20,7 +20,12 @@
             <button matButton="outlined" class="button" type="button" (click)="modifyLabels()">Labels</button>
             <button matButton="outlined" class="button" type="button" (click)="updateBoard()">Update board</button>
         </div>
+        @if(ownerId === user?.userId){
         <button matButton="outlined" class="button-delete" type="button" (click)="deleteBoard()">Delete board</button>
+        }
+        @else {
+            <button matButton="outlined" class="button-delete" type="button" (click)="leaveBoard()">Leave board</button>
+        }
     </div>
 
     <div

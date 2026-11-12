@@ -5,6 +5,8 @@ import com.example.flowboard.model.ChangeUserPasswordRequest;
 import com.example.flowboard.model.CreateUserRequest;
 import com.example.flowboard.model.UserResponse;
 import com.example.flowboard.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,17 +29,17 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long userId){
+    public ResponseEntity<?> deleteUser(@Positive @PathVariable Long userId){
         return userService.deleteUser(userId);
     }
 
     @PatchMapping("/updateUser/{userId}")
-    public ResponseEntity<?> updateUser(@RequestBody ChangeUserDataRequest changeUserDataRequest){
+    public ResponseEntity<?> updateUser(@Valid @RequestBody ChangeUserDataRequest changeUserDataRequest){
         return userService.changeUserData(changeUserDataRequest);
     }
 
     @PatchMapping("/changePassword/{userId}")
-    public ResponseEntity<?> changePassword(@RequestBody ChangeUserPasswordRequest changeUserPasswordRequest, @PathVariable Long userId){
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangeUserPasswordRequest changeUserPasswordRequest, @Positive @PathVariable Long userId){
         return userService.changePassword(changeUserPasswordRequest, userId);
     }
 

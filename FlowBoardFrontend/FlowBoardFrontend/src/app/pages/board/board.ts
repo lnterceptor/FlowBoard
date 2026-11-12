@@ -22,6 +22,9 @@ import { LabelData } from '../../interfaces/label-data';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { AuthService } from '../../services/auth-service';
+import { User } from '../../interfaces/user';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-board',
@@ -38,11 +41,17 @@ export class Board {
   collaborators: string[] = [];
   labels: LabelData[] = [];
   menuOpen = false;
+  ownerId: number = 0;
+  user : User | null = null;
 
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
-  constructor(private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService, private authService: AuthService){}
+  constructor(public snackBar: MatSnackBar ,private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService, private authService: AuthService){
+    this.authService.currentUser.subscribe(
+      user => this.user = user
+    )
+  }
 
   async ngOnInit(){
     const idParam = this.route.snapshot.paramMap.get('id');
@@ -54,7 +63,7 @@ export class Board {
         this.description = board.description;
         this.collaborators = board.collaborators;
         this.labels = board.labels;
-        
+        this.ownerId = board.ownerId
         this.columns = this.columnService.columns;
       }}
     );
@@ -153,7 +162,27 @@ export class Board {
       }
 
       this.boardService.deleteBoard(this.id).subscribe({
-      next: () => this.router.navigateByUrl('/')
+      next: () => {this.router.navigateByUrl('/')},
+      error:(error: HttpErrorResponse) =>{
+        this.snackBar.open(error.error.message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+      }
     })
+  }
+
+  leaveBoard(){
+    const confirmed = window.confirm("Are you sure you want to leave this board?");
+      if(!confirmed){
+        return;
+      }
+
+
+    this.boardService.deleteCollaborator(this.user?.username!, this.id).subscribe({
+      next:() => {          
+        this.router.navigateByUrl(`/`);},
+      error:() =>{
+        this.snackBar.open("Error occured when trying to leave board", '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+      }
+      }
+  )    
   }
 }

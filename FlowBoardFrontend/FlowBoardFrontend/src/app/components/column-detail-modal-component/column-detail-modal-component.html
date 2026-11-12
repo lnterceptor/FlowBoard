@@ -12,7 +12,13 @@
             <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
             <div class="button-row-second-part">
                 @if(this.id() != null){
-                    <button matButton="outlined" class="delete-button" type="button" (click)="deleteColumn()">delete</button>
+                    @if(!confirmDelete){
+                    <button matButton="outlined" class="delete-button" type="button" (click)="confirmDelete = true">delete</button>
+                    }
+                    @else {
+                        <button matButton="outlined" class="button-cancel" type="button" (click)="confirmDelete = false">Cancel deletion</button>
+                        <button matButton="outlined" class="delete-button" type="button" (click)="deleteColumn()">delete column</button>
+                    }
                 }
                 <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
             </div>

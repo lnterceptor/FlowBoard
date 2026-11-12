@@ -5,6 +5,8 @@ import com.example.flowboard.model.ChangeObjectOrder;
 import com.example.flowboard.model.ChangeColumnOfCard;
 import com.example.flowboard.model.CreateCardRequest;
 import com.example.flowboard.service.CardService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,34 +23,34 @@ public class CardController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<CardResponse> createCard(@RequestBody CreateCardRequest createCardRequest){
+    public ResponseEntity<CardResponse> createCard(@Valid @RequestBody CreateCardRequest createCardRequest){
         return cardService.createCard(createCardRequest);
     }
 
     @PatchMapping("/{cardId}")
-    public ResponseEntity<CardResponse> updateCard(@RequestBody CreateCardRequest newCard, @PathVariable Long cardId){
+    public ResponseEntity<CardResponse> updateCard(@Valid @RequestBody CreateCardRequest newCard, @Positive @PathVariable Long cardId){
         return cardService.updateCard(cardId, newCard);
     }
 
     @PatchMapping("/reorder")
-    public ResponseEntity<?> changeOrderInColumn(@RequestBody ChangeObjectOrder changeObjectOrder){
+    public ResponseEntity<?> changeOrderInColumn(@Valid @RequestBody ChangeObjectOrder changeObjectOrder){
         System.out.println("order of cards in column changed");
         return cardService.changeOrderInColumn(changeObjectOrder);
     }
 
     @PatchMapping("/moveCard")
-    public ResponseEntity<?> changeColumnAndPlacementOfCard(@RequestBody ChangeColumnOfCard changeColumnOfCard){
+    public ResponseEntity<?> changeColumnAndPlacementOfCard(@Valid @RequestBody ChangeColumnOfCard changeColumnOfCard){
         System.out.println("moved card to different column");
         return cardService.moveCardToDifferentColumn(changeColumnOfCard);
     }
 
     @DeleteMapping("/{cardId}")
-    public ResponseEntity<?> deleteCard(@PathVariable Long cardId){
+    public ResponseEntity<?> deleteCard(@Positive @PathVariable Long cardId){
         return cardService.deleteCard(cardId);
     }
 
     @GetMapping("/{columnId}")
-    public ResponseEntity<?> getCards(@PathVariable Long columnId){
+    public ResponseEntity<?> getCards(@Positive @PathVariable Long columnId){
         return cardService.getCardsFromColumn(columnId);
     }
 }

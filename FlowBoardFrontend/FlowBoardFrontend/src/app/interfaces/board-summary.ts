@@ -6,4 +6,5 @@ export interface BoardSummary {
     description: string;
     collaborators: string[];
     labels: LabelData[];
+    ownerId: number;
 }

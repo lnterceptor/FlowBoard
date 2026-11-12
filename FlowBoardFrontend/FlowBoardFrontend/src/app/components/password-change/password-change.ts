@@ -3,6 +3,8 @@ import { UserService } from '../../services/user-service';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-password-change',
@@ -47,7 +49,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   styleUrl: './password-change.scss',
 })
 export class PasswordChange {
-  constructor(private userService:UserService){}
+  constructor(private userService:UserService, public snackBar:MatSnackBar){}
   data = inject(MAT_DIALOG_DATA);
   repeatNewPassword: string = '';
   newPassword: string = '';
@@ -60,21 +62,21 @@ export class PasswordChange {
     if(this.newPassword === this.repeatNewPassword && this.newPassword.length >= 5){
       this.userService.updatePassword(this.currentPassword, this.newPassword, this.userId()!).subscribe({
       next: () => {this.dialogueRef.close();},
-      error: (error) => this.showPopup(error)
+      error: () => this.showPopup("Failed to change password")
     })
     }
     else{
-       console.log("error occured while changing ")
+      if(this.newPassword === this.repeatNewPassword){
+        this.showPopup("Password must have at least 5 characters");
+      }
+      else{
+        this.showPopup("New password and repeated new password are not identical");
+      }
     }
   }
 
-  showPopup(error: string){
-    const message = 'Unknown error appeared!';
-    console.log(error)
-    console.log(message);
-    
-    //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
-    return true;
+  showPopup(error: string){    
+    this.snackBar.open(error, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
   }
 
 }

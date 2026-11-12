@@ -22,7 +22,8 @@ import {MatCheckboxModule } from '@angular/material/checkbox';
 import { CommentData } from '../../interfaces/comment-data';
 import { AuthService } from '../../services/auth-service';
 import { User } from '../../interfaces/user';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-card-detail-modal-component',
@@ -44,15 +45,15 @@ export class CardDetailModalComponent {
   collaborators = signal(this.data.collaborators);
   avaibleLabels = signal<LabelData[]>(this.data.avaibleLabels);
   assignedLabels = signal<LabelData[]>(this.data.assignedLabels);
-  //also list of colabolators etc.
   done = signal<boolean>(this.data.done);
   comments = signal<CommentData[]>([]);
   editingCommentId: number | null = null;
   user : User | null = null;
   
   authService = inject(AuthService);
+  confirmDelete = false;
 
-  constructor(private http:HttpClient){
+  constructor(private http:HttpClient, public snackBar: MatSnackBar){
     this.authService.currentUser.subscribe(
       user => this.user = user
     )
@@ -83,24 +84,26 @@ export class CardDetailModalComponent {
     
   }
 
-  startEditingComment(commentId: number) {
-    this.editingCommentId = commentId;
+  startEditingComment(commentId: number, userId: number) {
+    if(this.user?.userId === userId){
+      this.editingCommentId = commentId;
+    }
   }
 
 updateComment(commentId: number, newContent: string) {
   this.cardService.updateComment(this.id(), this.user?.userId!, newContent, commentId).subscribe({
-        next:(result: CommentData) => {
-          this.comments.update(comments => comments.map(comment => comment.commentId !== result.commentId ? comment: result))
-    
-        }
+        next:(result: CommentData) => {this.comments.update(comments => comments.map(comment => comment.commentId !== result.commentId ? comment: result))},
+        error:(error: HttpErrorResponse) => {this.showPopup(error.error.message)}
       })
   this.editingCommentId = null;
 }
 
 
   deleteComment(commentId: number){
-    this.cardService.deleteComment(this.id(), commentId).subscribe({
-      next:() => { this.comments.update(comments => comments.filter(comment => comment.commentId != commentId)) }});
+    this.cardService.deleteComment(this.id(), commentId, this.user?.userId!).subscribe({
+      next:() => { this.comments.update(comments => comments.filter(comment => comment.commentId != commentId)) },
+      error:(error: HttpErrorResponse) => {this.showPopup(error.error.message)}
+    });
   }
 
   cardDetailsForm = new FormGroup({
@@ -121,25 +124,41 @@ updateComment(commentId: number, newContent: string) {
 
 
   addNewCard(){
-    
+    if(this.cardDetailsForm.value.title == null){
+      this.showPopup("Card title cannot be left empty")
+      return;
+    }
+
+    else if(this.cardDetailsForm.value.dueDate == null){
+      this.showPopup("Due date cannot be left empty")
+      return;
+    }
     const newCard = this.cardService.addNewCard(this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels(),  this.cardDetailsForm.value.isDone!).subscribe({
       next: (result: CardData) => {
         this.dialogueRef.close(result)},
-      error: () => this.showPopup()
+        error: (error: HttpErrorResponse) => {this.showPopup(error.error.message)}
     })
   }
 
   updateCard(){
+    if(this.cardDetailsForm.value.title == null){
+      this.showPopup("Card title cannot be left empty")
+      return;
+    }
+
+    else if(this.cardDetailsForm.value.dueDate == null){
+      this.showPopup("Due date cannot be left empty")
+      return;
+    }
+
     const updatedCard = this.cardService.updateCard(this.id(), this.cardDetailsForm.value.title, this.cardDetailsForm.value.description, this.cardDetailsForm.value.dueDate, this.columnId(), this.assignees(), this.assignedLabels(), this.cardDetailsForm.value.isDone!).subscribe({
       next: (result: CardData) => {this.dialogueRef.close(result)},
-      error: () => this.showPopup()
+      error: (error: HttpErrorResponse) => {this.showPopup(error.error.message)}
     })
   }
 
-  showPopup(){
-    const message = 'Unknown error appeared!';
-    //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
-    return true;
+  showPopup(message: string){    
+    this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
   }
 
   closeModal(){
@@ -148,8 +167,11 @@ updateComment(commentId: number, newContent: string) {
 
   deleteCard(){
     this.cardService.deleteCard(this.id()).subscribe({
-      next: () => this.dialogueRef.close(this.id()),
-      error: () => this.showPopup()
+      next: () => {
+        this.confirmDelete = false;
+        this.dialogueRef.close(this.id())
+      },
+      error: (error: HttpErrorResponse) => {this.showPopup(error.error.message)}
     })
   }
 

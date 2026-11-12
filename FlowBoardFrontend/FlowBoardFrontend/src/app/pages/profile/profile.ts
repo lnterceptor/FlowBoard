@@ -9,6 +9,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { PasswordChange } from '../../components/password-change/password-change';
 import { FormsModule } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { AuthenticationResponse } from '../../interfaces/authentication-response';
 
 
 @Component({
@@ -26,7 +28,7 @@ export class Profile {
   editedUsername: string = '';
   editedEmail: string = '';
 
-  constructor(private dialog: MatDialog, private http:HttpClient, private userService:UserService){
+  constructor(private dialog: MatDialog, private http:HttpClient, private userService:UserService, public snackBar: MatSnackBar){
       this.authService.currentUser.subscribe(
         user => {
           this.user = user
@@ -37,13 +39,16 @@ export class Profile {
   }
   saveChanges(){
     this.userService.updateUserData(this.editedEmail, this.editedUsername, this.user?.userId!).subscribe({
-      next: (result) => {
-        this.authService.setUser(result);
+      next: (result: AuthenticationResponse) => {
+
+        this.authService.setUser(result.user);
+        this.authService.setNewToken(result.token);
+        this.showPopup("User data changed succesfully");
       },
-      error: () => {
+      error: (error:HttpErrorResponse) => {
         this.editedEmail = this.user!.email!;
         this.editedUsername = this.user!.username!;
-        this.showPopup()
+        this.showPopup(error.error.message)
       }
     })
   }
@@ -71,10 +76,8 @@ export class Profile {
     
   }
   
-  showPopup(){
-    const message = 'Unknown error appeared!';
-    //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
-    return true;
+  showPopup(message: string){    
+    this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
   }
 
   goToMainPage(){

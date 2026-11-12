@@ -96,6 +96,10 @@ public class CardService {
         card.setCreationDate(Instant.now());
         card.setDone(createCardRequest.done());
 
+        column.addCard(card);
+        cardRepository.save(card);
+        columnRepository.save(column);
+
         if(createCardRequest.assignees() != null) {
             for (String assignee : createCardRequest.assignees()) {
                 User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
@@ -110,9 +114,8 @@ public class CardService {
         }
 
         column.setLastUpdateDate(Instant.now());
-        column.addCard(card);
-        cardRepository.save(card);
-        columnRepository.save(column);
+
+
 
         return ResponseEntity.ok(CardResponse.from(card));
     }
@@ -199,6 +202,10 @@ public class CardService {
     @Transactional
     public ResponseEntity<?> deleteCard(Long cardId){
         Card card = cardRepository.findCardById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card does not exist"));
+
+
+        card.getLabels().forEach(label -> label.getCards().remove(card));
+        card.getAssignees().forEach(assignee-> assignee.getAssignedCards().remove(card));
 
         BoardColumn column = card.getColumn();
         column.removeCard(card);

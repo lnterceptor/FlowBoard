@@ -5,6 +5,7 @@ import com.example.flowboard.model.BoardSummary;
 import com.example.flowboard.model.CreateBoardRequest;
 import com.example.flowboard.service.BoardService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,35 +27,35 @@ public class BoardController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<ArrayList<BoardSummary>> getUserBoards(@Valid @PathVariable Long userId){
+    public ResponseEntity<ArrayList<BoardSummary>> getUserBoards(@Positive @PathVariable Long userId){
         return boardService.getUserBoards(userId);
     }
 
     @GetMapping("/{userId}/getJoinedBoards")
-    public ResponseEntity<ArrayList<BoardSummary>> getUserJoinedBoards(@Valid @PathVariable Long userId){
+    public ResponseEntity<ArrayList<BoardSummary>> getUserJoinedBoards(@Positive @PathVariable Long userId){
         return boardService.getUserJoinedBoards(userId);
     }
 
     @DeleteMapping("/{boardId}")
-    public ResponseEntity<?> deleteBoard(@PathVariable Long boardId){
-        return boardService.deleteBoard(boardId);
+    public ResponseEntity<?> deleteBoard(@Positive @PathVariable Long boardId, @Positive @RequestParam Long userId){
+        return boardService.deleteBoard(boardId, userId);
     }
 
     @GetMapping("/board/{boardId}")
-    public ResponseEntity<?> getBoardWithGivenId(@PathVariable Long boardId){
+    public ResponseEntity<?> getBoardWithGivenId(@Positive @PathVariable Long boardId){
         return boardService.getBoard(boardId);
     }
     @PatchMapping("/{boardId}")
-    public ResponseEntity<BoardSummary> updateBoard(@PathVariable Long boardId, @RequestBody CreateBoardRequest boardRequest){
+    public ResponseEntity<BoardSummary> updateBoard(@Positive @PathVariable Long boardId,@Valid @RequestBody CreateBoardRequest boardRequest){
         return boardService.updateBoard(boardId, boardRequest);
     }
     @PostMapping("/addCollaborator")
-    public ResponseEntity<ArrayList<String>> addCollaboratorToBoard(@RequestBody CollaboratorRequest collaboratorRequest){
+    public ResponseEntity<ArrayList<String>> addCollaboratorToBoard(@Valid @RequestBody CollaboratorRequest collaboratorRequest){
         return boardService.addCollaborator(collaboratorRequest);
     }
 
     @DeleteMapping("/removeCollabolator")
-    public ResponseEntity<?> removeCollaborator(@RequestBody CollaboratorRequest collaboratorRequest){
-        return boardService.removeCollaborator(collaboratorRequest);
+    public ResponseEntity<?> removeCollaborator(@Valid @RequestBody CollaboratorRequest collaboratorRequest, @RequestParam Long userAskingForMemberDeleteId){
+        return boardService.removeCollaborator(collaboratorRequest, userAskingForMemberDeleteId);
     }
 }

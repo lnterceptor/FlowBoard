@@ -3,6 +3,9 @@ package com.example.flowboard.controller;
 import com.example.flowboard.model.LabelRequest;
 import com.example.flowboard.model.LabelResponse;
 import com.example.flowboard.service.LabelService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,17 +22,17 @@ public class LabelController {
     }
 
     @PostMapping("/")
-    public ResponseEntity<LabelResponse> createLabel(@RequestBody LabelRequest labelRequest, @PathVariable Long boardId){
+    public ResponseEntity<LabelResponse> createLabel(@Valid @RequestBody LabelRequest labelRequest, @Positive @PathVariable Long boardId){
         return labelService.createNewLabel(labelRequest, boardId);
     }
 
-    @DeleteMapping("/{labelName}")
-    public ResponseEntity<Void> createLabel(@PathVariable String labelName, @PathVariable Long boardId){
+    @DeleteMapping("/")
+    public ResponseEntity<Void> deleteLabel(@NotBlank @RequestParam String labelName,@Positive @PathVariable Long boardId){
         return labelService.deleteLabel(labelName, boardId);
     }
 
     @GetMapping("/")
-    public ResponseEntity<ArrayList<LabelResponse>> getLabels(@PathVariable Long boardId){
+    public ResponseEntity<ArrayList<LabelResponse>> getLabels(@Positive @PathVariable Long boardId){
         return labelService.getLabels(boardId);
     }
 

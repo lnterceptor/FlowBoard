@@ -65,9 +65,6 @@ public class Card {
     LocalDate dueDate;
     @Getter
     @Setter
-    String attachments; //todo: it will also be a Set
-    @Getter
-    @Setter
     Long positionInColumn;
 
     @Getter
@@ -88,6 +85,8 @@ public class Card {
 
     @OneToMany(
             mappedBy = "card",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true,
             fetch = FetchType.LAZY
     )
     private List<Comment> card = new ArrayList<>();

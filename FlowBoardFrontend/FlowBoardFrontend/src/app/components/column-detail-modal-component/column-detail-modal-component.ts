@@ -7,6 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { ColumnService } from '../../services/column-service';
 import { ColumnData } from '../../interfaces/column-data';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-column-detail-modal-component',
@@ -20,8 +22,9 @@ export class ColumnDetailModalComponent {
   id = signal(this.data.id);
   boardId = signal(this.data.boardId);
   private dialogueRef = inject(MatDialogRef);
-
-  constructor(private columnService:ColumnService){}
+  confirmDelete = false;
+  
+  constructor(private columnService:ColumnService, public snackBar: MatSnackBar){}
   columnDetailsForm = new FormGroup({
     title: new FormControl(this.title(), [Validators.required]), 
   })
@@ -29,7 +32,7 @@ export class ColumnDetailModalComponent {
   deleteColumn(){
       this.columnService.deleteColumn(this.id()).subscribe({
       next: () => this.dialogueRef.close(this.id()),
-      error: () => this.showPopup()
+      error: (error:HttpErrorResponse) => this.showPopup(error.error.message)
     })
   }
   
@@ -37,13 +40,13 @@ export class ColumnDetailModalComponent {
       if(this.id() != null){
         this.columnService.updateColumn(this.columnDetailsForm.value.title, this.id()).subscribe({
           next: (result: ColumnData) => {this.dialogueRef.close(result)},
-          error: () => this.showPopup()
+          error: (error:HttpErrorResponse) => this.showPopup(error.error.message)
         })
           }
       else{
         this.columnService.addNewColumn(this.columnDetailsForm.value.title, this.boardId()).subscribe({
           next: (result: ColumnData) => {this.dialogueRef.close(result)},
-          error: () => this.showPopup()
+          error: (error:HttpErrorResponse) => this.showPopup(error.error.message)
         })
       }
   }
@@ -52,9 +55,8 @@ export class ColumnDetailModalComponent {
       this.dialogueRef.close();
   }
 
-  showPopup(){
-    const message = 'Unknown error appeared!';
-    //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+  showPopup(error: string){
+    this.snackBar.open(error, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
     return true;
   }
 

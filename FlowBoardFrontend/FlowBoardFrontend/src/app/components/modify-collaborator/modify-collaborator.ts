@@ -7,6 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { BoardService } from '../../services/board-service';
 import { CommonModule } from '@angular/common';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { HttpErrorResponse } from '@angular/common/http';
+import { AuthService } from '../../services/auth-service';
+import { User } from '../../interfaces/user';
 
 @Component({
   selector: 'app-modify-collaborator',
@@ -23,23 +27,28 @@ import { CommonModule } from '@angular/common';
               Username is required.
           </mat-error> 
     </mat-form-field>
+    </form>
 
     <ul class = "collabolator-list">
       @for (collaborator of collaborators(); track collaborator){
-        <div class="collaborator-element">
-          <div class="username">{{collaborator}}</div>
-          <button matButton="outlined" (click)=deleteCollaborator(collaborator)>delete</button>
-        </div>
+        @if(user?.username !== collaborator){
+          <div class="collaborator-element">
+            <div class="username">{{collaborator}}</div>
+            @if(user?.userId === boardOwner){
+            <button matButton="outlined" class="delete-button" (click)=deleteCollaborator(collaborator)>delete</button>
+            }
+          </div>
+        }
       }
     </ul>
 
     
     <div class="button-row">
-            <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
+            <button matButton="outlined" class="button-accept"  type="submit" (click)="sendCollaboratorRequestToBackend()">Confirm</button>
             <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
     </div>
 
-    </form>
+    
 
 </div>
   `,
@@ -47,12 +56,24 @@ import { CommonModule } from '@angular/common';
 })
 export class ModifyCollaborator {
   data = inject(MAT_DIALOG_DATA);
-  boardId = signal(this.data.boardId);
+  boardId = signal<number>(this.data.boardId);
   collaborators = signal<string[]>(this.data.collaborators);
   private dialogueRef = inject(MatDialogRef);
   showErrors = false;
+  user : User| null = null;
+  boardOwner = -1;
 
-  constructor(private boardService:BoardService){}
+
+  constructor(private authService: AuthService, private boardService:BoardService, public snackBar:MatSnackBar){
+    this.authService.currentUser.subscribe(
+      user => this.user = user
+    )
+  }
+
+  ngOnInit(){
+    this.boardOwner = this.boardService.findBoardId(this.boardId());
+  }
+
   collaboratorDetailsForm = new FormGroup({
     username: new FormControl('', [Validators.required]), 
   })
@@ -61,7 +82,7 @@ export class ModifyCollaborator {
     this.showErrors = false;
     this.boardService.deleteCollaborator(username, this.boardId()).subscribe({
       next: () => {this.collaborators.update(list => list.filter(collaborator => collaborator !== username));},
-      error: () => this.showPopup()
+      error: (error:HttpErrorResponse) => this.showPopup(error.error.message)
     })
   }
   
@@ -74,7 +95,7 @@ export class ModifyCollaborator {
 
   this.boardService.addCollaborator(this.collaboratorDetailsForm.value.username!, this.boardId()).subscribe({
     next: (collaborators: string[]) => {this.collaborators.set(collaborators)},
-    error: () => this.showPopup()
+    error: (error:HttpErrorResponse) => this.showPopup(error.error.message)
   })
   }
 
@@ -82,9 +103,9 @@ export class ModifyCollaborator {
       this.dialogueRef.close(this.collaborators());
   }
 
-  showPopup(){
-    const message = 'Unknown error appeared!';
-    //this.snackBar.open(message, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+  
+  showPopup(error: string){
+    this.snackBar.open(error, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
     return true;
   }
 }

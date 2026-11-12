@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../interfaces/user';
+import { AuthenticationResponse } from '../interfaces/authentication-response';
 
 @Injectable({
   providedIn: 'root',
@@ -16,9 +17,9 @@ export class UserService {
       return this.http.patch(this.apiUrl + '/changePassword/' + userId, changePasswordRequest, {responseType: 'text'});
   }
 
-  updateUserData(email: string, username: string, userId: number): Observable<User>{
+  updateUserData(email: string, username: string, userId: number): Observable<AuthenticationResponse>{
     const userData = {email, username, userId}
-      return this.http.patch<User>(this.apiUrl + '/updateUser/' + userId, userData);
+      return this.http.patch<AuthenticationResponse>(this.apiUrl + '/updateUser/' + userId, userData);
   }
 
   deleteAccount(userId: number): Observable<string>{

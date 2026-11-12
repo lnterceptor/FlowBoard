@@ -3,6 +3,7 @@ import { Component, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth-service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-sign-in',
@@ -26,6 +27,8 @@ export class SignIn {
     password: new FormControl('', [Validators.required, Validators.minLength(this.minLengthPassword)])
   });
 
+  constructor(public snackBar:MatSnackBar){}
+
   goToRegister(){
     this.router.navigateByUrl('/sign-up');
   }
@@ -33,7 +36,6 @@ export class SignIn {
     this.clearErrors();
     if(this.signInForm.valid){
       this.isValid = true;
-      console.log("1");
       
     const auth = this.authService.login({username: this.signInForm.controls.username.value!, password: this.signInForm.controls.password.value!})
       .subscribe({
@@ -43,6 +45,7 @@ export class SignIn {
         , error:(error: HttpErrorResponse)=>{
           this.isValid = false;
           this.displayedPasswordError = error.error?.error;
+          this.showPopup("Cannot find account with specified email and password")
         }
         
       },
@@ -74,5 +77,10 @@ export class SignIn {
       }
     }
     return '';
+  }
+
+  showPopup(error: string){
+    this.snackBar.open(error, '', {duration: 2000,horizontalPosition: 'right', verticalPosition: 'top' , panelClass: ['snackbar']});
+    return true;
   }
 }

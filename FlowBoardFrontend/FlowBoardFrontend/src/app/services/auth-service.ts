@@ -68,6 +68,9 @@ export class AuthService {
     localStorage.setItem('currentUser', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
+  setNewToken(token: string): void{
+    localStorage.setItem('access_token', token);
+  }
 
   isAuthenticated(): boolean{
     return this.currentUserSubject.value == null ? false : true;

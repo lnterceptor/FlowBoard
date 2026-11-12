@@ -1,5 +1,6 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -101,7 +102,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<?> changePassword(ChangeUserPasswordRequest changeUserPasswordRequest, Long userId){
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        User user = userRepository.findUserById(userId).orElseThrow();
+        User user = userRepository.findUserById(userId).orElseThrow(() -> new ResourceNotFoundException("Cannot find specified user."));
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
@@ -117,7 +118,7 @@ public class UserService {
             user.setPassword(encryptedNewPassword);
         }
         catch (Exception e){
-            System.out.println("Exception");
+            return ResponseEntity.badRequest().body("Provided password is not correct");
         }
 
 
@@ -126,10 +127,17 @@ public class UserService {
 
     @Transactional
     public ResponseEntity<?> changeUserData(ChangeUserDataRequest changeUserDataRequest){
-        User user = userRepository.findUserById(changeUserDataRequest.userId()).orElseThrow();
-        //todo: validate data
+        User user = userRepository.findUserById(changeUserDataRequest.userId()).orElseThrow(() -> new ResourceNotFoundException("Cannot find specified user."));
+
         user.setEmail(changeUserDataRequest.email());
         user.setUsername(changeUserDataRequest.username());
-        return ResponseEntity.ok(UserResponse.from(user));
+
+        String jwtToken = jwtService.createJwtToken(user);
+
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("token", jwtToken);
+        response.put("user", UserResponse.from(user));
+
+        return ResponseEntity.ok(response);
     }
 }

@@ -26,6 +26,10 @@ export class AddNewBoardCard {
   onItemClick(){
     const dialogRef = this.dialog.open(BoardsDetailModalComponent, {
           disableClose: true,
+          width: '60vw',
+          height: '50vh',
+          maxWidth: '60vw',
+          maxHeight: '50vh',
           data:{}
         });
         dialogRef.afterClosed().subscribe((board: BoardSummary) =>{

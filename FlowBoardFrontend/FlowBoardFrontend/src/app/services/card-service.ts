@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { CardData } from '../interfaces/card-data';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { ColumnService } from './column-service';
 import { LabelData } from '../interfaces/label-data';
@@ -75,14 +75,22 @@ export class CardService {
       return this.http.delete<void>(this.apiUrl+ '/' + id);
     }
 
-    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{
-      /*const localDate = [
+    formatLocalDate(dueDate: Date | string){
+      if(typeof dueDate === 'string'){
+        return dueDate;
+      }
+      return [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
-      ].join('-');*/
+      ].join('-');
+    }
 
-      const updatedCard = {title, description, dueDate: dueDate, columnId, assignees, labels, done};
+    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{      
+      
+      const localDate = this.formatLocalDate(dueDate);
+
+      const updatedCard = {title, description, dueDate: localDate, columnId, assignees, labels, done};
       return this.http.patch<CardData>(this.apiUrl + '/' + id, updatedCard);
     }
 
@@ -95,8 +103,9 @@ export class CardService {
       return this.http.get<CommentData[]>(this.apiUrl + '/' + cardId + '/comments/');
     }
 
-    deleteComment(cardId: number, commentId: number): Observable<void>{
-      return this.http.delete<void>(this.apiUrl + '/' + cardId + '/comments/' + commentId);
+    deleteComment(cardId: number, commentId: number, userId: number): Observable<void>{
+      const params = new HttpParams().set('userId', userId);
+      return this.http.delete<void>(this.apiUrl + '/' + cardId + '/comments/' + commentId, {params});
     }
 
     updateComment(cardId: number, userId: number, content: string, commentId: number): Observable<CommentData>{

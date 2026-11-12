@@ -21,7 +21,7 @@
         <mat-form-field class="input-field">
                 <input matInput [matDatepicker]="picker" readonly placeholder="Choose a date"  formControlName="dueDate"  class="background">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker ></mat-datepicker>
+                <mat-datepicker #picker ></mat-datepicker>
         </mat-form-field>
 
         <div class="is-done-checkbox">
@@ -40,7 +40,13 @@
             <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
             <div class="button-row-second-part">
                 @if(this.id() != null){
-                    <button matButton="outlined" class="delete-button" type="button" (click)="deleteCard()">delete</button>
+                    @if(!confirmDelete){
+                    <button matButton="outlined" class="delete-button" type="button" (click)="confirmDelete = true">delete</button>
+                    }
+                    @else {
+                        <button matButton="outlined" class="button-cancel" type="button" (click)="confirmDelete = false">Cancel deletion</button>
+                        <button matButton="outlined" class="delete-button" type="button" (click)="deleteCard()">delete card</button>
+                    }
                 }
                 <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
             </div>
@@ -97,7 +103,7 @@
 </div>
     @if(id() != null){
     <div class="comment-details">
-        <h1>Comments</h1>
+        <h1 class="comments-title">Comments</h1>
         <div class="comments-container">
         @for(comment of comments(); track comment.commentId){
             <div class="comment">
@@ -110,11 +116,13 @@
                     />
 
                 } @else {
-                    <p (click)="startEditingComment(comment.commentId)"
+                    <p (click)="startEditingComment(comment.commentId, comment.userId)"
                         class="editable-comment">
-                        {{ comment.content }}
-                        <button matButton="outlined" class="button-cancel" type="button" (click)="deleteComment(comment.commentId)">delete</button>
-
+                            <span class="username">{{ comment.username }}:</span>
+                            <span class="comment-content">{{ comment.content }}</span>
+                        @if(comment.userId === user?.userId){
+                            <button matButton="outlined" class="button-delete-comment" type="button" (click)="deleteComment(comment.commentId)">delete</button>
+                        }
                     </p>
                 }
 

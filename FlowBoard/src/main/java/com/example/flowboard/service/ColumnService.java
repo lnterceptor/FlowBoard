@@ -1,5 +1,6 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.exception.ResourceAlreadyExistsException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.BoardRepository;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class ColumnService {
@@ -28,7 +31,9 @@ public class ColumnService {
         column.setTitle(columnRequest.title());
 
         Board board = boardRepository.findById(columnRequest.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
-
+        if(board.getColumns().stream().map(BoardColumn::getTitle).toList().contains(columnRequest.title())){
+            throw new ResourceAlreadyExistsException("Column with this name already exist on this board");
+        }
         column.setBoard(board);
         column.setPositionInBoard((long) board.getColumns().size());
 
@@ -36,12 +41,6 @@ public class ColumnService {
 
         columnRepository.save(column);
         boardRepository.save(board);
-
-        /*ArrayList<ColumnResponse> returnColumns = new ArrayList<>();
-
-        for(BoardColumn boardColumn: board.getColumns()){
-            returnColumns.add(ColumnResponse.from(boardColumn));
-        }*/
 
         return ResponseEntity.status(HttpStatus.CREATED).body(ColumnResponse.from(column));
     }
@@ -53,6 +52,10 @@ public class ColumnService {
     @Transactional
     public ResponseEntity<ColumnResponse> changeColumnName(Long columnId, String changeName){
         BoardColumn column = columnRepository.findBoardColumnsById(columnId).orElseThrow(() -> new ResourceNotFoundException("Column does not exist"));
+
+        if(column.getBoard().getColumns().stream().map(BoardColumn::getTitle).toList().contains(changeName) && !Objects.equals(column.getTitle(), changeName)){
+            throw new ResourceAlreadyExistsException("Column with this name already exist on this board");
+        }
         column.setTitle(changeName);
         return ResponseEntity.ok(ColumnResponse.from(column));
     }
