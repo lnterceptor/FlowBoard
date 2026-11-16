@@ -29,17 +29,18 @@ public class CardService {
     CardRepository cardRepository;
     ColumnRepository columnRepository;
 
-    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository){
+    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository, EntityManager entityManager){
         this.cardRepository = cardRepository;
         this.columnRepository = columnRepository;
         this.userRepository = userRepository;
         this.labelRepository = labelRepository;
+        this.entityManager = entityManager;
     }
 
     @Transactional
     public ResponseEntity<?> moveCardToDifferentColumn(ChangeColumnOfCard newPlacement){
         Card card = cardRepository.findCardById(newPlacement.cardId()).orElseThrow(() -> new ResourceNotFoundException("Card with id: " + newPlacement.cardId() + " not found"));
-        BoardColumn column = columnRepository.findBoardColumnsById(card.getColumn().getId()).orElseThrow();
+        BoardColumn column = columnRepository.findBoardColumnsById(card.getColumn().getId()).orElseThrow(() -> new ResourceNotFoundException("Source column does not exist"));
         BoardColumn newColumn = columnRepository.findBoardColumnsById(newPlacement.newColumnId()).orElseThrow(() -> new ResourceNotFoundException("Target column does not exist"));
 
         if(!newColumn.getBoard().equals(column.getBoard())){
@@ -157,7 +158,6 @@ public class CardService {
 
     @Transactional
     public ResponseEntity<CardResponse> updateCard(Long cardId, CreateCardRequest newCard){
-        System.out.println(newCard.labels());
         Card card = cardRepository.findCardById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card does not exist"));
 
         card.setTitle(newCard.title());

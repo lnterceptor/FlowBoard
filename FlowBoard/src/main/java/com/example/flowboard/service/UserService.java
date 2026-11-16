@@ -82,7 +82,6 @@ public class UserService {
 
 
     public ResponseEntity<ArrayList<UserResponse>> getUsers(){
-        //temporary unnecessary function to check if adding users work
         Iterable<User> iterable = userRepository.findAll();
         List<User> users = new ArrayList<>();
         ArrayList<UserResponse> usersResponse = new ArrayList<>();

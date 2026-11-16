@@ -45,10 +45,6 @@ public class ColumnService {
         return ResponseEntity.status(HttpStatus.CREATED).body(ColumnResponse.from(column));
     }
 
-    public ResponseEntity<BoardColumn> moveColumn(CreateColumnRequest columnRequest){
-        return ResponseEntity.ok(null);
-    }
-
     @Transactional
     public ResponseEntity<ColumnResponse> changeColumnName(Long columnId, String changeName){
         BoardColumn column = columnRepository.findBoardColumnsById(columnId).orElseThrow(() -> new ResourceNotFoundException("Column does not exist"));
@@ -82,7 +78,6 @@ public class ColumnService {
 
     @Transactional
     public ResponseEntity<ArrayList<ColumnResponse>> changeColumnOrder(ChangeObjectOrder changeObjectOrder){
-        System.out.println(changeObjectOrder.idOfFirstObject()+" "+ changeObjectOrder.positionOfSecondObject());
         BoardColumn column = columnRepository.findBoardColumnsById(changeObjectOrder.idOfFirstObject()).orElseThrow(() -> new ResourceNotFoundException("Column does not exist"));
         Board board = column.getBoard();
 

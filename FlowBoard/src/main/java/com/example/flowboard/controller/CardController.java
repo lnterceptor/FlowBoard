@@ -34,13 +34,11 @@ public class CardController {
 
     @PatchMapping("/reorder")
     public ResponseEntity<?> changeOrderInColumn(@Valid @RequestBody ChangeObjectOrder changeObjectOrder){
-        System.out.println("order of cards in column changed");
         return cardService.changeOrderInColumn(changeObjectOrder);
     }
 
     @PatchMapping("/moveCard")
     public ResponseEntity<?> changeColumnAndPlacementOfCard(@Valid @RequestBody ChangeColumnOfCard changeColumnOfCard){
-        System.out.println("moved card to different column");
         return cardService.moveCardToDifferentColumn(changeColumnOfCard);
     }
 

@@ -1,8 +1,5 @@
 package com.example.flowboard.model;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
-
 public record UserResponse(
         long userId, String username, String email
 ) {
