@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class ColumnService {
@@ -70,6 +69,14 @@ public class ColumnService {
             }
         }
         board.setLastUpdateDate(Instant.now());
+
+        for(Card card: column.getCards()){
+            while(!card.getLabels().isEmpty()) {
+                Label label = card.getLabels().getFirst();
+                card.removeLabel(label);
+            }
+        }
+
         columnRepository.delete(column);
 
 
