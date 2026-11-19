@@ -37,7 +37,7 @@ export class BoardService {
               collaborators: item.collaborators,
               labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
               ownerId: item.ownerId
-            }])}
+            }].sort((a,b) => a.title.localeCompare(b.title)))}
 
     const joinedBoards = await firstValueFrom(this.http.get<BoardSummary[]>(this.apiUrl+'/' + this.user?.userId + '/getJoinedBoards'));
       this.joinedBoards.set([]);
@@ -51,7 +51,7 @@ export class BoardService {
               collaborators: item.collaborators,
               labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
               ownerId: item.ownerId
-            }])}
+            }].sort(((a,b) => a.title.localeCompare(b.title))))}
   }}
   catch(error){
     console.error('Failed retrieving user boards.');

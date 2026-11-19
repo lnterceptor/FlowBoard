@@ -1,6 +1,7 @@
 package com.example.flowboard.service;
 
 import com.example.flowboard.events.*;
+import com.example.flowboard.exception.AccessDeniedException;
 import com.example.flowboard.exception.ResourceAlreadyExistsException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
@@ -129,8 +130,13 @@ public class ColumnService {
         return ResponseEntity.ok(columnResponses);
     }
 
-    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(Long boardId){
+    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(Long boardId, Long userId){
         Board board = boardRepository.findBoardById(boardId).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
+
+        if(!board.getCollaborators().stream().map(User::getId).toList().contains(userId) && !board.getUser().getId().equals(userId)){
+            throw new AccessDeniedException("User cannot access this board");
+        }
+
         ArrayList<ColumnResponse> columns = new ArrayList<>();
         for(BoardColumn column: board.getColumns()){
             columns.add(ColumnResponse.from(column));

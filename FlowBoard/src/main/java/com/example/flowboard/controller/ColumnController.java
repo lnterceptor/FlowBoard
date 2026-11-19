@@ -44,7 +44,7 @@ public class ColumnController {
     }
 
     @GetMapping("/{boardId}")
-    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(@Positive @PathVariable Long boardId){
-        return columnService.getColumnsFromBoard(boardId);
+    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(@Positive @PathVariable Long boardId, @Positive @RequestParam Long userId){
+        return columnService.getColumnsFromBoard(boardId, userId);
     }
 }

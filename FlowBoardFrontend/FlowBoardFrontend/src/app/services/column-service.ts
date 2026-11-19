@@ -16,10 +16,10 @@ export class ColumnService {
   constructor(private http:HttpClient){}
 
   
-  async getColumnsFromBackend(boardId: number){
+  async getColumnsFromBackend(boardId: number, userId: number){
     try{
       
-    const data = await firstValueFrom(this.http.get<ColumnData[]>(this.apiUrl+'/' + boardId));
+    const data = await firstValueFrom(this.http.get<ColumnData[]>(this.apiUrl+'/' + boardId, {params:{userId: userId}}));
     this.columns.set([]);
     for(const item of data){
       this.columns.update(
@@ -35,6 +35,7 @@ export class ColumnService {
   } catch(error) {
       console.error('Failed retrieving columns.');
       console.error('REQUEST FAILED:', error);
+      throw error;
     }
   }
   
@@ -126,9 +127,7 @@ export class ColumnService {
   }
 
   columnMoved(event: ColumnMoved){
-    console.log("Column moved");
-    
-    console.log(event);
+
     
     const column = this.columns().find(column => column.id === event.columnId);
     if(column!.positionOnBoard > event.newPosition){
@@ -205,29 +204,32 @@ export class ColumnService {
     const targetColumn = this.columns().find(column => column.id === positionOnBoard);
     const sourceColumn = this.columns().find(column => column.cards.find(card => card.id === cardId));
     
-    const card = sourceColumn?.cards.find(card => card.id === cardId);
+    if(targetColumn !== sourceColumn){
+        const card = sourceColumn?.cards.find(card => card.id === cardId);
 
-    
-  if (targetColumn && sourceColumn && card) {
-      sourceColumn.cards = sourceColumn.cards.filter(
-          card => card.id !== cardId
-      );
+        
+      if (targetColumn && sourceColumn && card) {
 
-      card.positionInColumn = positionInColumn;
-      sourceColumn.cards.forEach(tempCard => {
-        if(tempCard.positionInColumn >= card.positionInColumn){
-          tempCard.positionInColumn -= 1;
+          sourceColumn.cards = sourceColumn.cards.filter(
+              card => card.id !== cardId
+          );
+
+          
+          sourceColumn.cards.forEach(tempCard => {
+            if(tempCard.positionInColumn > card.positionInColumn){
+              tempCard.positionInColumn -= 1;
+            }
+          })
+
+          targetColumn.cards.forEach(tempCard => {
+            if(tempCard.positionInColumn >= positionInColumn){
+              tempCard.positionInColumn += 1;
+            }
+            
+          })
+          card.positionInColumn = positionInColumn;
+          targetColumn.cards = [...targetColumn.cards, card].sort((a,b) => a.positionInColumn - b.positionInColumn);
         }
-      })
-
-      targetColumn.cards.forEach(tempCard => {
-        if(tempCard.positionInColumn >= card.positionInColumn){
-          tempCard.positionInColumn += 1;
-        }
-      })
-
-      targetColumn.cards = [...targetColumn.cards, card].sort((a,b) => a.positionInColumn - b.positionInColumn);
-      
   }
   }
 
@@ -254,13 +256,11 @@ export class ColumnService {
 
     card!.positionInColumn = newPosition;
     column!.cards = column!.cards.sort((a,b) => a.positionInColumn - b.positionInColumn);
-    console.log(column);
+    
   }
 
 
     newCardCreated(event: CardCreated){
-        console.log("Card created");
-        console.log(event);
         if(this.columns().find(column => column.cards.find(card => card.id === event.payload.cardId))){
           console.log("Card exist, shouldn't duplicate it");
         }
@@ -283,7 +283,7 @@ export class ColumnService {
           });
 
         column!.cards = [...column!.cards, card].sort((a,b) => a.positionInColumn - b.positionInColumn);
-      console.log(column);  
+  
       }
        
        
@@ -291,9 +291,6 @@ export class ColumnService {
     
   
     cardEdited(event: CardEdited){
-      console.log("Card edited");
-      console.log(event);
-      
 
       const card = this.columns().flatMap(tempColumn => tempColumn.cards).find(card => card.id === event.payload.cardId);
       card!.assignees = event.payload.assignees;
@@ -308,7 +305,6 @@ export class ColumnService {
 
   
     cardDeleted(cardId: number){
-      console.log("Card deleted");
       
       const column = this.columns().find(tempColumn => tempColumn.cards.find(card => card.id === cardId));
       
@@ -322,7 +318,6 @@ export class ColumnService {
           tempCard.positionInColumn -= 1;
         }
       })
-      console.log(column);
       
     }
 

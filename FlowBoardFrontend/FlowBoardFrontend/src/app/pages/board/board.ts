@@ -25,6 +25,8 @@ import { AuthService } from '../../services/auth-service';
 import { User } from '../../interfaces/user';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { HttpErrorResponse } from '@angular/common/http';
+import { WebSocketService } from '../../services/web-socket-service';
+import { BoardDeleted, BoardEvent, CardCreated, CardDeleted, CardEdited, CardInColumnMovedEvent, CardMovedEvent, ColumnAdded, ColumnDeleted, ColumnMoved, ColumnRenamed } from '../../interfaces/board-event';
 
 @Component({
   selector: 'app-board',
@@ -47,7 +49,7 @@ export class Board {
   toggleMenu() {
     this.menuOpen = !this.menuOpen;
   }
-  constructor(public snackBar: MatSnackBar ,private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService, private authService: AuthService){
+  constructor(private webSocketService: WebSocketService, public snackBar: MatSnackBar ,private dialog: MatDialog, private columnService:ColumnService, private route: ActivatedRoute, private boardService: BoardService, private authService: AuthService){
     this.authService.currentUser.subscribe(
       user => this.user = user
     )
@@ -56,7 +58,11 @@ export class Board {
   async ngOnInit(){
     const idParam = this.route.snapshot.paramMap.get('id');
     this.id = idParam ? + idParam : 0;
-    await this.columnService.getColumnsFromBackend(this.id);
+    try{
+      await this.columnService.getColumnsFromBackend(this.id, this.user!.userId);
+    } catch(error){
+      this.router.navigateByUrl('/');
+    }
     this.boardService.getBoardDataFromBackend(this.id).subscribe({
       next: (board: BoardSummary) =>{
         this.title = board.title;
@@ -67,7 +73,90 @@ export class Board {
         this.columns = this.columnService.columns;
       }}
     );
-    
+       this.webSocketService.watchBoard(this.id).subscribe(
+      message => {
+        const event = JSON.parse(message.body);
+        this.handleBoardEvent(event);
+      }
+    )
+  }
+
+  handleBoardEvent(event: BoardEvent){
+    switch(event.type){
+        case 'CARD_MOVED':
+          this.handleCardMoved(event);
+          break;
+        case 'CARD_IN_COLUMN_MOVED':
+          this.handleCardInTheSameColumnMoved(event);
+          break;
+        case 'CARD_EDITED':
+          this.handleCardEdited(event);
+          break;
+        case 'CARD_CREATED':
+          this.handleCardCreated(event);
+          break;
+        case 'CARD_DELETED':
+          this.handleCardDeleted(event);
+          break
+        case 'COLUMN_MOVED':
+          this.handleColumnMoved(event);
+          break;
+        case 'COLUMN_RENAMED':
+          this.handleColumnRenamed(event);
+          break;
+        case 'COLUMN_ADDED':
+          this.handleColumnAdded(event);
+          break;
+        case 'COLUMN_DELETED':
+          this.handleColumnDeleted(event);
+          break;
+        case 'BOARD_DELETED':
+          this.handleBoardDeleted(event);
+          break;
+        }
+      
+  }
+
+  handleBoardDeleted(event: BoardDeleted){
+    this.boardService.joinedBoards.update(boards => boards.filter(board => board.id !== event.boardId));
+    this.boardService.boards.update(boards => boards.filter(board => board.id !== event.boardId));
+    this.router.navigateByUrl('/');
+  }
+
+  handleColumnRenamed(event: ColumnRenamed){
+    this.columnService.columnRenamed(event.columnId, event.newName);
+  }
+
+  handleColumnAdded(event: ColumnAdded){
+    this.columnService.columnAdded(event);
+  }
+
+  handleColumnDeleted(event: ColumnDeleted){
+    this.columnService.columnDeleted(event.columnId);
+  }
+
+  handleColumnMoved(event: ColumnMoved){
+    this.columnService.columnMoved(event);
+  }
+
+  handleCardCreated(event: CardCreated){
+    this.columnService.newCardCreated(event);
+  }
+
+  handleCardEdited(event: CardEdited){
+    this.columnService.cardEdited(event);
+  }
+
+  handleCardDeleted(event: CardDeleted){
+    this.columnService.cardDeleted(event.cardId);
+  }
+
+  handleCardInTheSameColumnMoved(event: CardInColumnMovedEvent){
+    this.columnService.moveCardInTheSameColumn(event.newPosition, event.cardId);
+  }
+
+  handleCardMoved(event: CardMovedEvent){    
+    this.columnService.moveCardToDifferentColumn(event.payload.targetColumnId, event.payload.cardId, event.payload.positionInTargetColumn);
   }
 
   drop(event: CdkDragDrop<ColumnData[]>) {
