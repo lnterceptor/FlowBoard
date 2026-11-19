@@ -53,6 +53,7 @@ import { LabelData } from '../../interfaces/label-data';
           [collaborators]="this.collaborators()"
           [assignedLabels]="card.labels"
           [avaibleLabels]="this.avaibleLabels()"
+          [boardId]="this.boardId()"
         />
     }
     

@@ -1,5 +1,6 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.events.*;
 import com.example.flowboard.exception.ResourceAlreadyExistsException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
@@ -18,10 +19,12 @@ import java.util.Objects;
 public class ColumnService {
     ColumnRepository columnRepository;
     BoardRepository boardRepository;
+    BoardEventPublisher boardEventPublisher;
 
-    public ColumnService(ColumnRepository columnRepository, BoardRepository boardRepository){
+    public ColumnService(ColumnRepository columnRepository, BoardRepository boardRepository, BoardEventPublisher boardEventPublisher){
         this.columnRepository = columnRepository;
         this.boardRepository = boardRepository;
+        this.boardEventPublisher = boardEventPublisher;
     }
 
     @Transactional
@@ -41,6 +44,7 @@ public class ColumnService {
         columnRepository.save(column);
         boardRepository.save(board);
 
+        boardEventPublisher.publishColumnAdded(new ColumnAddedEvent("COLUMN_ADDED", column.getId(), column.getPositionInBoard(), column.getTitle()), board.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ColumnResponse.from(column));
     }
 
@@ -52,6 +56,8 @@ public class ColumnService {
             throw new ResourceAlreadyExistsException("Column with this name already exist on this board");
         }
         column.setTitle(changeName);
+
+        boardEventPublisher.publishColumnRenamed(new ColumnRenamedEvent("COLUMN_RENAMED", column.getId(), column.getTitle()), column.getBoard().getId());
         return ResponseEntity.ok(ColumnResponse.from(column));
     }
 
@@ -79,6 +85,7 @@ public class ColumnService {
 
         columnRepository.delete(column);
 
+        boardEventPublisher.publishColumnDeleted(new ColumnDeletedEvent("COLUMN_DELETED", columnId), board.getId());
 
         return ResponseEntity.noContent().build();
     }
@@ -116,7 +123,10 @@ public class ColumnService {
         for(BoardColumn tempColumn: board.getColumns()){
             columnResponses.add(ColumnResponse.from(tempColumn));
         }
-            return ResponseEntity.ok(columnResponses);
+
+        boardEventPublisher.publishColumnMoved(new ColumnMovedEvent("COLUMN_MOVED", column.getId(), column.getPositionInBoard()), board.getId());
+
+        return ResponseEntity.ok(columnResponses);
     }
 
     public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(Long boardId){

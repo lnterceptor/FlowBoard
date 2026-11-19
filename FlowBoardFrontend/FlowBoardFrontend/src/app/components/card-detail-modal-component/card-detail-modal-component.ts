@@ -24,6 +24,8 @@ import { AuthService } from '../../services/auth-service';
 import { User } from '../../interfaces/user';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { WebSocketService } from '../../services/web-socket-service';
+import { AddComment, BoardEvent, DeleteComment, UpdateComment } from '../../interfaces/board-event';
 
 @Component({
   selector: 'app-card-detail-modal-component',
@@ -49,11 +51,12 @@ export class CardDetailModalComponent {
   comments = signal<CommentData[]>([]);
   editingCommentId: number | null = null;
   user : User | null = null;
+  boardId = signal(this.data.boardId);
   
   authService = inject(AuthService);
   confirmDelete = false;
 
-  constructor(private http:HttpClient, public snackBar: MatSnackBar){
+  constructor(private http:HttpClient, public snackBar: MatSnackBar, private webSocketService: WebSocketService){
     this.authService.currentUser.subscribe(
       user => this.user = user
     )
@@ -67,7 +70,55 @@ export class CardDetailModalComponent {
     if(this.id()){
       this.getComments();
     }
+    
+    this.webSocketService.watchCard(this.boardId(), this.id()).subscribe(
+      message => {
+        const event = JSON.parse(message.body);
+        
+        this.handleCommentEvent(event);
+      }
+    )
   }
+
+  handleCommentEvent(event: BoardEvent){
+    
+    
+      switch(event.type){
+        case 'COMMENT_ADDED':
+          this.handleCommentAdded(event);
+          break;
+        case 'COMMENT_DELETED':
+          this.handleCommentDeleted(event);
+          break;
+        case 'COMMENT_UPDATED':
+          this.handleCommentUpdate(event);
+          break;
+      }
+  }
+
+  handleCommentAdded(event: AddComment){
+    if(this.comments().find(comment => comment.commentId === event.commentId)){
+      console.log("Comment added previously");
+      
+    }
+    else{
+      let comment : CommentData = {} as CommentData;
+      comment.commentId = event.commentId;
+      comment.content = event.content;
+      comment.userId = event.userId;
+      comment.username = event.username;
+      this.comments.update(comments => [...comments, comment]);
+   }
+  }
+
+  handleCommentDeleted(event: DeleteComment){
+    this.comments.update(comments => comments.filter(comment => comment.commentId !== event.commentId))
+  }
+  handleCommentUpdate(event: UpdateComment){
+    const comment = this.comments().find(comment => comment.commentId === event.commentId);
+    comment!.content = event.content;
+  }
+
   getComments(){
       this.cardService.getComments(this.id()).subscribe({
         next:(result: CommentData[]) => {
@@ -75,10 +126,16 @@ export class CardDetailModalComponent {
         }
       })
   }
+
   addComment(comment: string){
     this.cardService.postComment(this.id(), this.user?.userId!, comment).subscribe({
       next:(result: CommentData) => {
-        this.comments.update(comments => [...comments, result])
+        if(this.comments().find(comment => comment.commentId === result.commentId)){
+          console.log("Comment added previously using sockets"); 
+        }
+        else{
+          this.comments.update(comments => [...comments, result])
+        }
       }
     })
     

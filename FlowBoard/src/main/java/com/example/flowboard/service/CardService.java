@@ -1,5 +1,6 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.events.*;
 import com.example.flowboard.exception.InvalidMoveCardException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
@@ -28,13 +29,16 @@ public class CardService {
 
     CardRepository cardRepository;
     ColumnRepository columnRepository;
+    BoardEventPublisher boardEventPublisher;
 
-    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository, EntityManager entityManager){
+    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository, EntityManager entityManager,
+                       BoardEventPublisher boardEventPublisher){
         this.cardRepository = cardRepository;
         this.columnRepository = columnRepository;
         this.userRepository = userRepository;
         this.labelRepository = labelRepository;
         this.entityManager = entityManager;
+        this.boardEventPublisher = boardEventPublisher;
     }
 
     @Transactional
@@ -82,6 +86,9 @@ public class CardService {
         for (BoardColumn tempColumn : newColumn.getBoard().getColumns()){
             columnResponses.add(ColumnResponse.from(tempColumn));
         }
+
+        boardEventPublisher.publishCardMoved(new CardMovedEvent("CARD_MOVED", new CardMovedPayload(card.getId(), card.getColumn().getId(), card.getPositionInColumn())), column.getBoard().getId());
+
         return ResponseEntity.ok(columnResponses);
     }
 
@@ -116,7 +123,9 @@ public class CardService {
 
         column.setLastUpdateDate(Instant.now());
 
-
+        boardEventPublisher.publicCardCreated(new CardCreated("CARD_CREATED",
+                new CardCreatedPayload(card.getTitle(),card.getDescription(), card.getPositionInColumn(), card.getDueDate(), (ArrayList<LabelResponse>) card.getLabels().stream().map(LabelResponse::from).collect(Collectors.toList()), (ArrayList<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toList()), card.isDone(), card.getId(), column.getId()))
+                , column.getBoard().getId());
 
         return ResponseEntity.ok(CardResponse.from(card));
     }
@@ -153,6 +162,9 @@ public class CardService {
         for (Card card1 : column.getCards()){
             cardResponses.add(CardResponse.from(card1));
         }
+
+        boardEventPublisher.publishCardInColumnMoved(new CardInColumnMovedEvent("CARD_IN_COLUMN_MOVED", card.getId(), newPosition), column.getBoard().getId());
+
         return ResponseEntity.ok(cardResponses);
     }
 
@@ -195,6 +207,9 @@ public class CardService {
                 }
             }
         }
+        boardEventPublisher.publishCardEdited(
+                new CardEdited("CARD_EDITED", new CardEditedPayload(card.getTitle(), card.getDescription(), card.getDueDate(), card.isDone(), card.getId(), (ArrayList<LabelResponse>) card.getLabels().stream().map(LabelResponse::from).collect(Collectors.toList()), (ArrayList<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toList())))
+                , card.getColumn().getBoard().getId());
 
         return ResponseEntity.ok(CardResponse.from(card));
     }
@@ -218,6 +233,8 @@ public class CardService {
         }
         column.setLastUpdateDate(Instant.now());
         cardRepository.delete(card);
+
+        boardEventPublisher.publishCardDeleted(new CardDeleted("CARD_DELETED", cardId), column.getBoard().getId());
 
         return ResponseEntity.noContent().build();
     }

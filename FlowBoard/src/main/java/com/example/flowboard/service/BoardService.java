@@ -1,5 +1,6 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.events.BoardDeletedEvent;
 import com.example.flowboard.exception.AccessDeniedException;
 import com.example.flowboard.exception.ResourceAlreadyExistsException;
 import com.example.flowboard.exception.ResourceNotFoundException;
@@ -20,9 +21,11 @@ import java.util.stream.Collectors;
 public class BoardService {
     BoardRepository boardRepository;
     UserRepository userRepository;
-    public BoardService(BoardRepository boardRepository, UserRepository userRepository){
+    BoardEventPublisher boardEventPublisher;
+    public BoardService(BoardRepository boardRepository, UserRepository userRepository, BoardEventPublisher boardEventPublisher){
         this.boardRepository = boardRepository;
         this.userRepository = userRepository;
+        this.boardEventPublisher = boardEventPublisher;
     }
 
     @Transactional
@@ -53,6 +56,9 @@ public class BoardService {
             throw new AccessDeniedException("Cannot delete board that does not belong to user");
         }
         boardRepository.deleteById(boardId);
+
+        boardEventPublisher.publishBoardDeleted(new BoardDeletedEvent("BOARD_DELETED", boardId),boardId);
+
         return ResponseEntity.noContent().build();
     }
 

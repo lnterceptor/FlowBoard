@@ -51,6 +51,7 @@ export class Card {
   collaborators = input<string[]>();
   avaibleLabels = input<LabelData[]>();
   assignedLabels = input<LabelData[]>();
+  boardId = input<number>();
 
   constructor(private dialog: MatDialog, private columnService: ColumnService) {}
 
@@ -61,7 +62,7 @@ export class Card {
     maxWidth: '80vw',
     maxHeight: '75vh',
     disableClose: true,
-    data:{id: this.id(), dueDate: this.dueDate(), done: this.done(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels()}
+    data:{id: this.id(), dueDate: this.dueDate(), done: this.done(), description: this.description(), title: this.title(), columnId: this.columnId, assignees: this.assignees(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels(), assignedLabels: this.assignedLabels(), boardId: this.boardId()}
   });
   dialogRef.afterClosed().subscribe((card: CardData | number | undefined) =>{
     if(!card){
