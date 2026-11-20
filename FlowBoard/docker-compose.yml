@@ -10,8 +10,11 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-  app:
-    build: .
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       - postgres
     ports:
@@ -21,5 +24,13 @@ services:
       SPRING_DATABASE_USER: user
       SPRING_DATABASE_PASSWORD: password
 
+  frontend:
+    build:
+      context: ../FlowBoardFrontend/FlowBoardFrontend
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
 volumes:
   postgres_data:
