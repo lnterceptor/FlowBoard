@@ -1,20 +1,41 @@
 <div class="board" >
-    <p class = "title">{{this.title}}</p>
-    <ul class="tool-bar">
-        <button (click)="addNewColumn()">Add column</button>
-        <button (click)="addNewCollabolator()">Add collabolator</button>
-        <button (click)="removeCollabolator()">Remove collabolator</button>
-        <button (click)="updateBoard()">Update board</button>
-        <button (click)="deleteBoard()">Delete board</button>
-        <button (click)="goToMainPage()">Go to main page</button>
-    </ul>
-    <ul
+    <div class="title-box">
+        <div class = "title">{{this.title}} </div>
+        <button mat-icon-button aria-label="Settings" class="settings-button" (click)="toggleMenu()"><mat-icon>settings</mat-icon></button>
+        
+        @if (menuOpen) {
+            <div class="dropdown-menu">
+            <a (click)="goToProfile()">Profile</a>
+            <a (click)="goToMainPage()">Main Page</a>
+            <a (click)="logout()">Logout</a>
+            </div>
+        }
+
+    </div>
+
+    <div class="tool-bar-box">
+        <div class="tool-bar">
+            <button matButton="outlined" class="button" type="button" (click)="addNewColumn()">Add column</button>
+            <button matButton="outlined" class="button" type="button" (click)="modifyCollabolators()">Collabolators</button>
+            <button matButton="outlined" class="button" type="button" (click)="modifyLabels()">Labels</button>
+            <button matButton="outlined" class="button" type="button" (click)="updateBoard()">Update board</button>
+        </div>
+        @if(ownerId === user?.userId){
+        <button matButton="outlined" class="button-delete" type="button" (click)="deleteBoard()">Delete board</button>
+        }
+        @else {
+            <button matButton="outlined" class="button-delete" type="button" (click)="leaveBoard()">Leave board</button>
+        }
+    </div>
+
+    <div
       cdkDropList
+      class="columns-container"
       cdkDropListOrientation="horizontal"
       [cdkDropListData]="columns()"
       (cdkDropListDropped)="drop($event)"
     >
-    <ul class = "columns" cdkDropListGroup>
+    <div class="columns" cdkDropListGroup>
         @for (column of columns(); track column.positionOnBoard) {
             <app-column 
                 cdkDrag
@@ -22,8 +43,11 @@
                 [cards]="column.cards"
                 [position_on_board]="column.positionOnBoard"
                 [title]="column.title"
-                [boardId]="this.id"/>
+                [boardId]="this.id"
+                [collaborators]="this.collaborators",
+                [avaibleLabels]="this.labels"
+                />
         }
-    </ul>
-    </ul>
+    </div>
+    </div>
 </div>

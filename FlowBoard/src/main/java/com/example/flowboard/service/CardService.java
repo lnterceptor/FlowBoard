@@ -1,10 +1,13 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.events.*;
 import com.example.flowboard.exception.InvalidMoveCardException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.CardRepository;
 import com.example.flowboard.repository.ColumnRepository;
+import com.example.flowboard.repository.LabelRepository;
+import com.example.flowboard.repository.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -12,27 +15,36 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CardService {
+    private final UserRepository userRepository;
+    private final LabelRepository labelRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
     CardRepository cardRepository;
     ColumnRepository columnRepository;
+    BoardEventPublisher boardEventPublisher;
 
-    public CardService(CardRepository cardRepository, ColumnRepository columnRepository){
+    public CardService(CardRepository cardRepository, ColumnRepository columnRepository, UserRepository userRepository, LabelRepository labelRepository, EntityManager entityManager,
+                       BoardEventPublisher boardEventPublisher){
         this.cardRepository = cardRepository;
         this.columnRepository = columnRepository;
+        this.userRepository = userRepository;
+        this.labelRepository = labelRepository;
+        this.entityManager = entityManager;
+        this.boardEventPublisher = boardEventPublisher;
     }
 
     @Transactional
     public ResponseEntity<?> moveCardToDifferentColumn(ChangeColumnOfCard newPlacement){
         Card card = cardRepository.findCardById(newPlacement.cardId()).orElseThrow(() -> new ResourceNotFoundException("Card with id: " + newPlacement.cardId() + " not found"));
-        BoardColumn column = columnRepository.findBoardColumnsById(card.getColumn().getId()).orElseThrow();
+        BoardColumn column = columnRepository.findBoardColumnsById(card.getColumn().getId()).orElseThrow(() -> new ResourceNotFoundException("Source column does not exist"));
         BoardColumn newColumn = columnRepository.findBoardColumnsById(newPlacement.newColumnId()).orElseThrow(() -> new ResourceNotFoundException("Target column does not exist"));
 
         if(!newColumn.getBoard().equals(column.getBoard())){
@@ -74,6 +86,9 @@ public class CardService {
         for (BoardColumn tempColumn : newColumn.getBoard().getColumns()){
             columnResponses.add(ColumnResponse.from(tempColumn));
         }
+
+        boardEventPublisher.publishCardMoved(new CardMovedEvent("CARD_MOVED", new CardMovedPayload(card.getId(), card.getColumn().getId(), card.getPositionInColumn())), column.getBoard().getId());
+
         return ResponseEntity.ok(columnResponses);
     }
 
@@ -87,11 +102,30 @@ public class CardService {
         card.setPositionInColumn((long) column.getCards().size());
         card.setDueDate(createCardRequest.dueDate());
         card.setCreationDate(Instant.now());
+        card.setDone(createCardRequest.done());
 
-        column.setLastUpdateDate(Instant.now());
         column.addCard(card);
         cardRepository.save(card);
         columnRepository.save(column);
+
+        if(createCardRequest.assignees() != null) {
+            for (String assignee : createCardRequest.assignees()) {
+                User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+                card.addAssignee(user);
+            }
+        }
+        if(createCardRequest.labels() != null) {
+            for (LabelRequest label : createCardRequest.labels()) {
+                Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), column.getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+                card.addLabel(newLabel);
+            }
+        }
+
+        column.setLastUpdateDate(Instant.now());
+
+        boardEventPublisher.publicCardCreated(new CardCreated("CARD_CREATED",
+                new CardCreatedPayload(card.getTitle(),card.getDescription(), card.getPositionInColumn(), card.getDueDate(), (ArrayList<LabelResponse>) card.getLabels().stream().map(LabelResponse::from).collect(Collectors.toList()), (ArrayList<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toList()), card.isDone(), card.getId(), column.getId()))
+                , column.getBoard().getId());
 
         return ResponseEntity.ok(CardResponse.from(card));
     }
@@ -121,16 +155,6 @@ public class CardService {
                 tempCard.setPositionInColumn(tempCard.getPositionInColumn() - 1);
                 tempCard.setLastUpdateDate(Instant.now());
             }
-            /*if(tempCard.getPositionInColumn().equals(newPosition) && !card.equals(tempCard)){
-                tempCard.setPositionInColumn(card.getPositionInColumn());
-                tempCard.setLastUpdateDate(Instant.now());
-
-                card.setPositionInColumn(newPosition);
-                card.setLastUpdateDate(Instant.now());
-
-                column.setLastUpdateDate(Instant.now());
-                break;
-            }*/
         }
         card.setPositionInColumn(newPosition);
         card.setLastUpdateDate(Instant.now());
@@ -138,6 +162,9 @@ public class CardService {
         for (Card card1 : column.getCards()){
             cardResponses.add(CardResponse.from(card1));
         }
+
+        boardEventPublisher.publishCardInColumnMoved(new CardInColumnMovedEvent("CARD_IN_COLUMN_MOVED", card.getId(), newPosition), column.getBoard().getId());
+
         return ResponseEntity.ok(cardResponses);
     }
 
@@ -149,6 +176,40 @@ public class CardService {
         card.setDescription(newCard.description());
         card.setDueDate(newCard.dueDate());
         card.setLastUpdateDate(Instant.now());
+        card.setDone(newCard.done());
+
+        card.getAssignees().removeIf(user -> !newCard.assignees().contains(user.getUsername()));
+
+
+        HashSet<String> currentAssignees = (HashSet<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toSet());
+        if(newCard.assignees() != null) {
+            for (String assignee : newCard.assignees()) {
+                if (!currentAssignees.contains(assignee)) {
+                    User user = userRepository.findUserByUsername(assignee).orElseThrow(() -> new ResourceNotFoundException("User does not exist"));
+                    card.addAssignee(user);
+                }
+            }
+        }
+
+
+        for(Label label: new ArrayList<>(card.getLabels())){
+            if (!newCard.labels().contains(new LabelRequest(label.getName(), label.getColor()))) {
+                card.removeLabel(label);
+            }
+        }
+
+        HashSet<String> currentLabels = (HashSet<String>) card.getLabels().stream().map(Label::getName).collect(Collectors.toSet());
+        if(newCard.labels() != null) {
+            for (LabelRequest label : newCard.labels()) {
+                if (!currentLabels.contains(label.name())) {
+                    Label newLabel = labelRepository.findLabelByNameAndBoardId(label.name(), card.getColumn().getBoard().getId()).orElseThrow(() -> new ResourceNotFoundException("Label does not exist"));
+                    card.addLabel(newLabel);
+                }
+            }
+        }
+        boardEventPublisher.publishCardEdited(
+                new CardEdited("CARD_EDITED", new CardEditedPayload(card.getTitle(), card.getDescription(), card.getDueDate(), card.isDone(), card.getId(), (ArrayList<LabelResponse>) card.getLabels().stream().map(LabelResponse::from).collect(Collectors.toList()), (ArrayList<String>) card.getAssignees().stream().map(User::getUsername).collect(Collectors.toList())))
+                , card.getColumn().getBoard().getId());
 
         return ResponseEntity.ok(CardResponse.from(card));
     }
@@ -156,6 +217,10 @@ public class CardService {
     @Transactional
     public ResponseEntity<?> deleteCard(Long cardId){
         Card card = cardRepository.findCardById(cardId).orElseThrow(() -> new ResourceNotFoundException("Card does not exist"));
+
+
+        card.getLabels().forEach(label -> label.getCards().remove(card));
+        card.getAssignees().forEach(assignee-> assignee.getAssignedCards().remove(card));
 
         BoardColumn column = card.getColumn();
         column.removeCard(card);
@@ -168,6 +233,8 @@ public class CardService {
         }
         column.setLastUpdateDate(Instant.now());
         cardRepository.delete(card);
+
+        boardEventPublisher.publishCardDeleted(new CardDeleted("CARD_DELETED", cardId), column.getBoard().getId());
 
         return ResponseEntity.noContent().build();
     }

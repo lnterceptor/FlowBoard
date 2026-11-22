@@ -1,0 +1,50 @@
+.card-detail-modal{
+    background-color: #273449;
+    width: 100%;
+    height: 100%;
+}
+
+.board-form{
+    margin-top: 7.5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+
+.input-title-field textarea {
+  height: 30px;
+  resize: none;
+}
+
+.input-title-field {
+  width: 100%;
+
+}
+
+.button-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.button-row-second-part{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+.button-accept{
+    background: transparent;
+    color: #22C55E ;
+    border: 1px solid #22C55E ;
+}
+
+.delete-button{
+    background: transparent;
+    color: #b91c1c;
+    border: 1px solid #dc2626;
+}

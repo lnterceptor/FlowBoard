@@ -1,13 +1,12 @@
 package com.example.flowboard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -25,19 +24,45 @@ public class Card {
 
     @Getter
     @Setter
-    String description;
+    @Column(name = "completed", nullable = false)
+    boolean done;
+
     @Getter
     @Setter
-    String assignees; //todo: person/people responsible for doing given assigment, change to a Set after adding members
+    String description;
+
+    @Getter
+    @Setter
+    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "card_assignees",
+            joinColumns = @JoinColumn(name = "card_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<User> assignees = new ArrayList<>();
+
+    @Getter
+    @ManyToMany(mappedBy = "cards", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Label> labels = new ArrayList<>();
+
+    public void addLabel(Label label){
+        labels.add(label);
+        label.getCards().add(this);
+    }
+
+    public void removeLabel(Label label){
+        if(labels.remove(label)){
+            label.getCards().remove(this);
+        }
+    }
+
     @Getter
     @Setter
     LocalDate dueDate;
-    @Getter
-    @Setter
-    String attachments; //todo: it will also be a Set
-    @Getter
-    @Setter
-    String labels; //todo: it will also be a Set with labels
     @Getter
     @Setter
     Long positionInColumn;
@@ -56,4 +81,24 @@ public class Card {
     @JoinColumn(name="column_id")
     @ToString.Exclude
     BoardColumn column;
+
+
+    @OneToMany(
+            mappedBy = "card",
+            cascade = CascadeType.REMOVE,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Comment> card = new ArrayList<>();
+
+
+    public void addAssignee(User user) {
+        this.assignees.add(user);
+        user.getAssignedCards().add(this);
+    }
+
+    public void removeAssignee(User user){
+        this.assignees.remove(user);
+        user.getAssignedCards().remove(this);
+    }
 }

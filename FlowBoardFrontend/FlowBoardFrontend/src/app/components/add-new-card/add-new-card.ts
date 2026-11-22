@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { CardDetailModalComponent } from '../card-detail-modal-component/card-detail-modal-component';
 import { ColumnService } from '../../services/column-service';
 import { CardData } from '../../interfaces/card-data';
+import { LabelData } from '../../interfaces/label-data';
 
 @Component({
   selector: 'app-add-new-card',
@@ -17,11 +18,13 @@ import { CardData } from '../../interfaces/card-data';
 export class AddNewCard {
   constructor(private dialog: MatDialog, private columnService: ColumnService) {}
   columnId = input<number>();
+  collaborators = input<string[]>();
+  avaibleLabels = input<LabelData[]>();
 
   openCardDetails(){
         const dialogRef = this.dialog.open(CardDetailModalComponent, {
         disableClose: true,
-        data:{description: '', title: '', columnId: this.columnId()}
+        data:{description: '', title: '', columnId: this.columnId(), collaborators: this.collaborators(), avaibleLabels: this.avaibleLabels()}
       });
       dialogRef.afterClosed().subscribe((card: CardData) =>{
     if(card) {

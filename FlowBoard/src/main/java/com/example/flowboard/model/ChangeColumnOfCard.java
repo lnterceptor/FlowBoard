@@ -1,6 +1,8 @@
 package com.example.flowboard.model;
 
-public record ChangeColumnOfCard(Long cardId,
-                                 Long newColumnId,
-                                 Long placementInNewColumn) {
+import jakarta.validation.constraints.NotNull;
+
+public record ChangeColumnOfCard(@NotNull Long cardId,
+                                 @NotNull Long newColumnId,
+                                 @NotNull Long placementInNewColumn) {
 }

@@ -1,5 +1,8 @@
 package com.example.flowboard.service;
 
+import com.example.flowboard.events.*;
+import com.example.flowboard.exception.AccessDeniedException;
+import com.example.flowboard.exception.ResourceAlreadyExistsException;
 import com.example.flowboard.exception.ResourceNotFoundException;
 import com.example.flowboard.model.*;
 import com.example.flowboard.repository.BoardRepository;
@@ -11,16 +14,18 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Objects;
 
 @Service
 public class ColumnService {
     ColumnRepository columnRepository;
     BoardRepository boardRepository;
+    BoardEventPublisher boardEventPublisher;
 
-    public ColumnService(ColumnRepository columnRepository, BoardRepository boardRepository){
+    public ColumnService(ColumnRepository columnRepository, BoardRepository boardRepository, BoardEventPublisher boardEventPublisher){
         this.columnRepository = columnRepository;
         this.boardRepository = boardRepository;
+        this.boardEventPublisher = boardEventPublisher;
     }
 
     @Transactional
@@ -29,7 +34,9 @@ public class ColumnService {
         column.setTitle(columnRequest.title());
 
         Board board = boardRepository.findById(columnRequest.boardId()).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
-
+        if(board.getColumns().stream().map(BoardColumn::getTitle).toList().contains(columnRequest.title())){
+            throw new ResourceAlreadyExistsException("Column with this name already exist on this board");
+        }
         column.setBoard(board);
         column.setPositionInBoard((long) board.getColumns().size());
 
@@ -38,23 +45,20 @@ public class ColumnService {
         columnRepository.save(column);
         boardRepository.save(board);
 
-        /*ArrayList<ColumnResponse> returnColumns = new ArrayList<>();
-
-        for(BoardColumn boardColumn: board.getColumns()){
-            returnColumns.add(ColumnResponse.from(boardColumn));
-        }*/
-
+        boardEventPublisher.publishColumnAdded(new ColumnAddedEvent("COLUMN_ADDED", column.getId(), column.getPositionInBoard(), column.getTitle()), board.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(ColumnResponse.from(column));
-    }
-
-    public ResponseEntity<BoardColumn> moveColumn(CreateColumnRequest columnRequest){
-        return ResponseEntity.ok(null);
     }
 
     @Transactional
     public ResponseEntity<ColumnResponse> changeColumnName(Long columnId, String changeName){
         BoardColumn column = columnRepository.findBoardColumnsById(columnId).orElseThrow(() -> new ResourceNotFoundException("Column does not exist"));
+
+        if(column.getBoard().getColumns().stream().map(BoardColumn::getTitle).toList().contains(changeName) && !Objects.equals(column.getTitle(), changeName)){
+            throw new ResourceAlreadyExistsException("Column with this name already exist on this board");
+        }
         column.setTitle(changeName);
+
+        boardEventPublisher.publishColumnRenamed(new ColumnRenamedEvent("COLUMN_RENAMED", column.getId(), column.getTitle()), column.getBoard().getId());
         return ResponseEntity.ok(ColumnResponse.from(column));
     }
 
@@ -72,15 +76,23 @@ public class ColumnService {
             }
         }
         board.setLastUpdateDate(Instant.now());
+
+        for(Card card: column.getCards()){
+            while(!card.getLabels().isEmpty()) {
+                Label label = card.getLabels().getFirst();
+                card.removeLabel(label);
+            }
+        }
+
         columnRepository.delete(column);
 
+        boardEventPublisher.publishColumnDeleted(new ColumnDeletedEvent("COLUMN_DELETED", columnId), board.getId());
 
         return ResponseEntity.noContent().build();
     }
 
     @Transactional
     public ResponseEntity<ArrayList<ColumnResponse>> changeColumnOrder(ChangeObjectOrder changeObjectOrder){
-        System.out.println(changeObjectOrder.idOfFirstObject()+" "+ changeObjectOrder.positionOfSecondObject());
         BoardColumn column = columnRepository.findBoardColumnsById(changeObjectOrder.idOfFirstObject()).orElseThrow(() -> new ResourceNotFoundException("Column does not exist"));
         Board board = column.getBoard();
 
@@ -105,26 +117,26 @@ public class ColumnService {
                 tempColumn.setLastUpdateDate(Instant.now());
 
             }
-            /*if(tempColumn.getPositionInBoard().equals(newPosition) && !column.equals(tempColumn)){
-                System.out.println("change done");
-                tempColumn.setPositionInBoard(column.getPositionInBoard());
-                tempColumn.setLastUpdateDate(Instant.now());
 
-                column.setPositionInBoard(newPosition);
-                column.setLastUpdateDate(Instant.now());
-                break;
-            }*/
         }
         column.setPositionInBoard(newPosition);
         ArrayList<ColumnResponse> columnResponses = new ArrayList<>();
         for(BoardColumn tempColumn: board.getColumns()){
             columnResponses.add(ColumnResponse.from(tempColumn));
         }
-            return ResponseEntity.ok(columnResponses);
+
+        boardEventPublisher.publishColumnMoved(new ColumnMovedEvent("COLUMN_MOVED", column.getId(), column.getPositionInBoard()), board.getId());
+
+        return ResponseEntity.ok(columnResponses);
     }
 
-    public ResponseEntity<?> getColumnsFromBoard(Long boardId){
+    public ResponseEntity<ArrayList<ColumnResponse>> getColumnsFromBoard(Long boardId, Long userId){
         Board board = boardRepository.findBoardById(boardId).orElseThrow(() -> new ResourceNotFoundException("Board does not exist"));
+
+        if(!board.getCollaborators().stream().map(User::getId).toList().contains(userId) && !board.getUser().getId().equals(userId)){
+            throw new AccessDeniedException("User cannot access this board");
+        }
+
         ArrayList<ColumnResponse> columns = new ArrayList<>();
         for(BoardColumn column: board.getColumns()){
             columns.add(ColumnResponse.from(column));

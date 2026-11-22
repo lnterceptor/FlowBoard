@@ -3,5 +3,68 @@
     grid-template-columns: repeat(5, 1fr);
     gap: 16px;
     padding: 10px;
+}
+.title{
+  color: #f5f5f5;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.list-of-boards{
+    display: flex;
+    flex-direction: column;
     background-color: #172033;
+    gap: 16px;
+}
+
+
+.dropdown-menu {
+  position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 150px;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #1E293B;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.dropdown-menu a {
+  padding: 12px 16px;
+  text-decoration: none;
+  color: 	#E2E8F0;
+  cursor: default;
+}
+
+.dropdown-menu a:hover {
+  background: #334155;
+}
+
+
+.title-box{
+    position: relative;
+    display: inline-block;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    padding-top: 1.5%;
+    padding-bottom: 1.5%;
+    border-bottom: #9a9999 2px solid;
+}
+
+.title{
+    color: #38BDF8;
+    font-size:xx-large;
+    font-weight: bold;
+}
+.settings-button{
+    color: #9a9999;
 }

@@ -1,31 +1,27 @@
 package com.example.flowboard.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Data
 @Table(name = "users")
 public class User {
-    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Setter
     @Getter
-    @Column
+    @Column(nullable = false)
     private String username;
 
     @Setter
     @Getter
-    @Column
+    @Column(unique = true, nullable = false)
     private String email;
 
     @Setter
@@ -35,8 +31,8 @@ public class User {
 
     @Setter
     @Getter
-    @Column
-    private String passwordHash;
+    @Column(nullable = false)
+    private String password;
 
     @Setter
     @Getter
@@ -52,6 +48,27 @@ public class User {
     )
     private List<Board> boards = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            fetch = FetchType.LAZY
+    )
+    private List<Comment> comments = new ArrayList<>();
+
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setUser(this);
+    }
+
+    @Getter
+    @ManyToMany(mappedBy = "collaborators", fetch = FetchType.LAZY)
+    private Set<Board> joinedBoards = new HashSet<>();
+
+    @Getter
+    @ManyToMany(mappedBy = "assignees", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<Card> assignedCards = new ArrayList<>();
+
     public void addBoard(Board board){
         boards.add(board);
         board.setUser(this);
@@ -66,14 +83,28 @@ public class User {
     public User(
             String username,
             String email,
-            String passwordHash,
+            String password,
             Instant createdAt
     ){
         this.username = username;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.createdAt = createdAt;
-        //update id
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

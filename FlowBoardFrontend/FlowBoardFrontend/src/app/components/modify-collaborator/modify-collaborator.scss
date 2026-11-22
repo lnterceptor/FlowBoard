@@ -1,0 +1,80 @@
+.card-detail-modal{
+    background-color: #273449;
+    width: 100%;
+    height: 100%;
+}
+
+.board-form{
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+
+.collaborator-element{
+    background-color: #f3f4f6;
+    border-radius: 15px;
+    border: 2px solid #1f2937;
+    display: flex;
+    flex-direction:row;
+    margin: 0 auto;
+    
+    align-items: center;
+    justify-content: space-between;
+    width: 80%;
+    gap: 10px;
+    height: 5vh;
+}
+
+.delete-button{
+  color: red !important;
+  border-color: red !important;
+  height: 5vh;
+}
+
+.username{
+  color: #1f2937;
+  font-size: 1rem;
+  font-weight: 450;
+  margin-left: 3%;
+}
+.collabolator-list{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+}
+
+
+.input-field {
+    margin-top: 10%;
+    width: 80%;
+    margin-left: 10%;
+    border-radius: 15px;
+}
+
+
+.button-row{
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 3%;
+}
+
+.button-accept{
+    background: transparent;
+    color: #22C55E ;
+    border: 1px solid #22C55E ;
+}
+.collabolator-list{
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    max-height: 35cqh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}

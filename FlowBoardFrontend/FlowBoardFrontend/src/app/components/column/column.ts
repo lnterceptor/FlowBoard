@@ -16,6 +16,7 @@ import { ColumnDetailModalComponent } from '../column-detail-modal-component/col
 import { ColumnData } from '../../interfaces/column-data';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule, MatIcon } from '@angular/material/icon';
+import { LabelData } from '../../interfaces/label-data';
 
 @Component({
   selector: 'app-column',
@@ -26,12 +27,18 @@ import { MatIconModule, MatIcon } from '@angular/material/icon';
     <span class = "title">{{title()}} </span>
     <button mat-icon-button aria-label="Settings" class="settings-button" (click)="updateColumn()"> <mat-icon>settings</mat-icon> </button>
 </div >
-  <ul
+  <div
       cdkDropList
+      class="cards"
       cdkDropListOrientation="vertical"
       [cdkDropListData]="cards()"
       (cdkDropListDropped)="drop($event)"
     >
+    <app-add-new-card 
+    [columnId]="this.id()"
+    [collaborators]="this.collaborators()"
+    [avaibleLabels]="this.avaibleLabels()">
+    </app-add-new-card>
     @for (card of cards(); track card.positionInColumn) {
         <app-card 
           cdkDrag
@@ -40,11 +47,17 @@ import { MatIconModule, MatIcon } from '@angular/material/icon';
           [description]="card.description"
           [title]="card.title"
           [columnId]="this.id()"
-          [dueDate]="this.dueDate"
+          [dueDate]="card.dueDate"
+          [done]="card.done"
+          [assignees]="card.assignees"
+          [collaborators]="this.collaborators()"
+          [assignedLabels]="card.labels"
+          [avaibleLabels]="this.avaibleLabels()"
+          [boardId]="this.boardId()"
         />
     }
-    <app-add-new-card [columnId]="this.id()"></app-add-new-card>
-    </ul>
+    
+    </div>
   </div>
   `,
   styleUrl: './column.scss',
@@ -54,13 +67,16 @@ export class Column {
   title = input<string>();
   position_on_board = input<number>();
   cards = input<CardData[]>([]);
-  dueDate: Date = new Date();
   boardId = input<number>();
-
+  collaborators = input<string[]>();
+  avaibleLabels = input<LabelData[]>();
+  
   constructor(private dialog: MatDialog, private cardService: CardService, private columnService: ColumnService){};
   
   updateColumn(){
     const dialogRef = this.dialog.open(ColumnDetailModalComponent, {
+            width: '60vw',
+            height: '30vh',
             disableClose: true,
             data:{boardId: this.boardId(), id: this.id(), title:this.title()}
           });

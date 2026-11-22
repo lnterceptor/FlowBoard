@@ -1,8 +1,10 @@
 package com.example.flowboard.model;
 
+import jakarta.validation.constraints.NotNull;
+
 public record ChangeObjectOrder(
-        Long idOfFirstObject,
-        Long positionOfSecondObject
+        @NotNull Long idOfFirstObject,
+        @NotNull Long positionOfSecondObject
 ) {
 
 }

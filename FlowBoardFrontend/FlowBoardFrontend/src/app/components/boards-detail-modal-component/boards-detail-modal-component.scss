@@ -1,0 +1,51 @@
+.board-form{
+    margin-top: 5%;
+    padding-left: 5%;
+    padding-right: 5%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+
+
+.card-detail-modal{
+    background-color: #273449;
+    width: 100%;
+    height: 100%;
+}
+
+
+
+.input-title-field textarea {
+  height: 30px;
+  resize: none;
+}
+
+.input-title-field {
+  width: 100%;
+
+}
+
+.input-description-field {
+  width: 100%;
+
+}
+
+.input-description-field textarea {
+  height: 48px;
+  resize: none;
+}
+
+
+.button-row{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.button-accept{
+    background: transparent;
+    color: #22C55E ;
+    border: 1px solid #22C55E ;
+}

@@ -1,8 +1,10 @@
 import { Injectable, signal } from '@angular/core';
 import { CardData } from '../interfaces/card-data';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { firstValueFrom, Observable, of } from 'rxjs';
 import { ColumnService } from './column-service';
+import { LabelData } from '../interfaces/label-data';
+import { CommentData } from '../interfaces/comment-data';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +25,10 @@ export class CardService {
             dueDate: item.dueDate,
             title: item.title,
             positionInColumn: item.positionInColumn,
-            description:item.description
+            description:item.description,
+            assignees: item.assignees,
+            labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
+            done: item.done
           }])
         }
         this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);
@@ -46,20 +51,23 @@ export class CardService {
               title: item.title,
               description:item.description,
               positionInColumn: item.positionInColumn,
+              assignees: item.assignees,
+              labels: item.labels.sort((a,b) => a.name.localeCompare(b.name)),
+              done: item.done
             }])
           }
       return this.cards().sort((a,b) => a.positionInColumn - b.positionInColumn);    
     }
 
 
-    addNewCard(title: string, description: string ,dueDate: Date, columnId: number): Observable<CardData>{
+    addNewCard(title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{
       const localDate = [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
       ].join('-');
 
-      const newCard = {title, description, dueDate: localDate, columnId};
+      const newCard = {title, description, dueDate: localDate, columnId, assignees, labels, done};
       return this.http.post<CardData>(this.apiUrl + '/', newCard);
     }
     
@@ -67,14 +75,43 @@ export class CardService {
       return this.http.delete<void>(this.apiUrl+ '/' + id);
     }
 
-    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number): Observable<CardData>{
-      const localDate = [
+    formatLocalDate(dueDate: Date | string){
+      if(typeof dueDate === 'string'){
+        return dueDate;
+      }
+      return [
         dueDate.getFullYear(),
         String(dueDate.getMonth() + 1).padStart(2,'0'),
         String(dueDate.getDate()).padStart(2, '0')
       ].join('-');
+    }
 
-      const updatedCard = {title, description, dueDate: localDate, columnId};
+    updateCard(id: number, title: string, description: string ,dueDate: Date, columnId: number, assignees: string[], labels: LabelData[], done: boolean): Observable<CardData>{      
+      
+      const localDate = this.formatLocalDate(dueDate);
+
+      const updatedCard = {title, description, dueDate: localDate, columnId, assignees, labels, done};
       return this.http.patch<CardData>(this.apiUrl + '/' + id, updatedCard);
     }
+
+    postComment(cardId: number, userId: number, content: string){
+      const comment = {userId, content}
+      return this.http.post<CommentData>(this.apiUrl + '/' + cardId + '/comments/', comment);
+    }
+    
+    getComments(cardId: number): Observable<CommentData[]>{
+      return this.http.get<CommentData[]>(this.apiUrl + '/' + cardId + '/comments/');
+    }
+
+    deleteComment(cardId: number, commentId: number, userId: number): Observable<void>{
+      const params = new HttpParams().set('userId', userId);
+      return this.http.delete<void>(this.apiUrl + '/' + cardId + '/comments/' + commentId, {params});
+    }
+
+    updateComment(cardId: number, userId: number, content: string, commentId: number): Observable<CommentData>{
+      const comment = {userId, content}
+      return this.http.patch<CommentData>(this.apiUrl + '/' + cardId + '/comments/' + commentId, comment);
+    }
+    
+
 }

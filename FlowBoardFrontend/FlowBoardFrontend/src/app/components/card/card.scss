@@ -1,17 +1,79 @@
 .card{
-    width: 100%;
+    width: 13cqw;
     margin-bottom: 2%;
     box-sizing: border-box;
-    background-color: #1E293B;
     border-radius: 15px;
     border: 2px solid antiquewhite;
 }
 
 .description{
+    margin-left: 2%;
+    margin-right: 2%;
     color: #CBD5E1
 }
+
+
+.card.due-soon {
+  background-color: #49391F;
+  border-left: 3px solid #FBBF24;
+}
+.card.overdue {
+  background-color: #4C252F;
+  border-left: 3px solid #F87171;
+}
+.card.done {
+  background-color: #1F4038;
+  border-left: 3px solid #4ADE80;
+}
+.card.upcoming{
+  background-color: #1E293B;
+}
+
+.title-paragraph{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding-left: 5%;
+  padding-right: 5%;
+  padding-top: 2%;
+}
+
 .title{
     color: #CBD5E1;
     font-size: large;
     font-weight: bold;
+}
+
+.settings-button mat-icon {
+  color: #bdbdbd; 
+}
+.settings-button{
+  background-color: transparent;
+  border-color: transparent;
+}
+
+.chips{
+  padding-left: 5%;
+  padding-right: 5%;
+  display: flex;
+  flex-direction: row;
+
+}
+
+mat-chip {
+  max-height: 20px !important;  
+}
+
+.assignees{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-right: 2%;
+  padding-left: 2%;
+  
+}
+
+.assignee{
+  font-size: small;
+  color: #CBD5E1
 }

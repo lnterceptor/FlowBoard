@@ -1,24 +1,23 @@
 <div class="card-detail-modal">
-    <form [formGroup]="boardDetailsForm" (ngSubmit)="sendBoardToBackend()">
-        <mat-form-field class="input-field">    
+    
+    <form [formGroup]="boardDetailsForm" class="board-form" (ngSubmit)="sendBoardToBackend()">
+
+        <mat-form-field class="input-title-field">    
             <mat-label>Title:</mat-label>
-            <input matInput type=text id="title-input" formControlName="title"/>
-            
+            <textarea matInput type=text id="title-input" formControlName="title"> </textarea>
         </mat-form-field>
 
-        <mat-form-field class="input-field">    
+        <mat-form-field class="input-description-field">    
             <mat-label>Description:</mat-label>
-            <input matInput type=text id="description-input" formControlName="description"/>
+            <textarea matInput type=text id="description-input" formControlName="description" rows="2"> </textarea>
             
-        </mat-form-field>
+    </mat-form-field>
 
 
     
     <div class="button-row">
-            <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
-            <div button-row-second-part>
-                <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
-            </div>
+        <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
+        <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
     </div>
 
     </form>

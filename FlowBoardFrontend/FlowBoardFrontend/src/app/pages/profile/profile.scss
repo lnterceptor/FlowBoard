@@ -1,0 +1,132 @@
+
+.error{
+    color:red;
+    size:8px;
+}
+.button {
+    background: #3B82F6;
+    color: black;
+    border-radius: 150px;
+    width: 30%;
+    height: 7vh;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 2cqh;
+}
+#inputs{
+    background-color: #172033;
+    border: 2px solid antiquewhite;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 90%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    padding-left: 7.5%;
+}
+.label-text{
+    color: #CBD5E1;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.input-field{
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: 90%;
+}
+
+.input-button {
+    border: 1px solid #38BDF8;
+    background: transparent;
+    color: #CBD5E1;
+    border-radius: 150px;
+    width: 90%;
+    height: 4vh;
+    font-size: 15px;
+    font-weight: bold;
+}
+.delete-button{
+    background: transparent;
+    color: #b91c1c;
+    border: 1px solid #dc2626;
+    border-radius: 150px;
+    width: 90%;
+    height: 4vh;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+
+.page-sections{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;    
+}
+.section-title{
+    color: #38BDF8;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.section-description{
+    color: #CBD5E1;
+    font-size: 15px;
+}
+
+.delete-title{
+    color: #b91c1c;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+#delete-inputs{
+    background-color: #172033;
+    border: 2px solid #dc2626;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 90%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    padding-left: 7.5%;
+}
+
+
+
+
+.title{
+    color: #38BDF8;
+    font-size:xx-large;
+    font-weight: bold;
+}
+.go-back-button{
+    color: #9a9999;
+    background-color: transparent;
+    border: transparent;
+}
+
+.go-back-button:hover {
+  cursor: pointer;
+}
+
+
+.title-box{
+    position: relative;
+    display: inline-block;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    padding-top: 1.5%;
+    padding-bottom: 1.5%;
+    margin-bottom: 2cqh;
+    border-bottom: #9a9999 2px solid;
+}
+

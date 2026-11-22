@@ -1,15 +1,32 @@
 .board{
     border: 2px solid #333;
-    padding: 16px;
     background-color: #0F172A;
 }
 .columns{
-    background-color: #172033;
-    display: flex;
-    gap: 16px;
-
     border: 2px solid #9a9999;
-    padding: 16px;
+    background-color: #172033;
+    gap: 1%;
+    padding-left: 1%;
+    padding-right: 1%;
+    padding-top: 2%;
+    padding-bottom: 2%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
+}
+
+.title-box{
+    position: relative;
+    display: inline-block;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    padding-top: 1.5%;
+    padding-bottom: 1.5%;
 }
 
 .title{
@@ -18,14 +35,56 @@
     font-weight: bold;
 }
 
+.tool-bar-box{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-left: 2.5%;
+    padding-right: 2.5%;
+    padding-top: 1.5%;
+    padding-bottom: 1.5%;
+    border-top: #9a9999 2px solid;
+}
+
 .tool-bar{
     display: flex;
     flex-direction: row;
-    height: 2.5%;
-    width: 95%;
-    margin-top: 1%;
-    margin-left: 2.5%;
+    gap: 1%;
+}
+
+.button-delete {
+  color: red !important;
+  border-color: red !important;
 }
 
 
 
+.dropdown-menu {
+  position: absolute;
+    top: 100%;
+    right: 0;
+    min-width: 150px;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: #1E293B;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border-radius: 5px;
+    z-index: 1000;
+}
+
+.dropdown-menu a {
+  padding: 12px 16px;
+  text-decoration: none;
+  color: 	#E2E8F0;
+  cursor: default;
+}
+
+.dropdown-menu a:hover {
+  background: #334155;
+}
+
+.settings-button{
+    color: #9a9999;
+}

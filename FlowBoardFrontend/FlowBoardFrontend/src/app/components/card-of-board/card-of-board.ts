@@ -10,9 +10,10 @@ import { BoardService } from '../../services/board-service';
   imports: [],
   template: `
     <div class="boardCard" (click)="onItemClick()">
-      <p class = "title"> title: {{title()}}</p>
-      <p class = "description">  desc: {{description()}}</p>
-      <p class = "description">  id: {{id()}} </p>
+      <div class="content">
+        <div class = "title"> {{title()}}</div>
+        <div class = "description"> {{description()}}</div>
+      </div>
     </div>
   `,
   styleUrl: './card-of-board.scss',

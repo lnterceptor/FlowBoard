@@ -1,37 +1,145 @@
-<div class="card-detail-modal">
+<div class="background-of-modal">
+
+<div [class.card-detail-modal]="id() != null">
+    <div class="card-details">
     <form [formGroup]="cardDetailsForm" (ngSubmit)="sendCardToBackend()">
-        <mat-form-field class="input-field">    
+        
+        <mat-form-field class="title-box">    
             <mat-label>Title:</mat-label>
-            <input matInput type=text id="title-input" formControlName="title"/>
-            
+            <input matInput type=text id="title-input" formControlName="title"/>     
         </mat-form-field>
         
-                
+        
+        <div>
+        <mat-form-field class="input-description-field">  
+            <mat-label>Description:</mat-label>
+            <textarea matInput type=text id="description-input" formControlName="description" rows="2"> </textarea>
+        </mat-form-field>
+        </div>
+        
+        <div class="date-row">
         <mat-form-field class="input-field">
                 <input matInput [matDatepicker]="picker" readonly placeholder="Choose a date"  formControlName="dueDate"  class="background">
                 <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                    <mat-datepicker #picker ></mat-datepicker>
+                <mat-datepicker #picker ></mat-datepicker>
         </mat-form-field>
- 
 
-        <div>
-        <mat-form-field class="input-field">  
-            <mat-label>Description:</mat-label>
-            <input matInput type=text id="description-input" formControlName="description"/>
-        </mat-form-field>
+        <div class="is-done-checkbox">
+            <mat-checkbox
+                class="checkbox-input"
+                id="checkbox-input"
+                formControlName="isDone">
+                Done:
+            </mat-checkbox>
+        </div>
+
         </div>
 
     
     <div class="button-row">
             <button matButton="outlined" class="button-accept"  type="submit">Confirm</button>
-            <div button-row-second-part>
+            <div class="button-row-second-part">
                 @if(this.id() != null){
-                    <button matButton="outlined" class="button-delete" type="button" (click)="deleteCard()">delete</button>
+                    @if(!confirmDelete){
+                    <button matButton="outlined" class="delete-button" type="button" (click)="confirmDelete = true">delete</button>
+                    }
+                    @else {
+                        <button matButton="outlined" class="button-cancel" type="button" (click)="confirmDelete = false">Cancel deletion</button>
+                        <button matButton="outlined" class="delete-button" type="button" (click)="deleteCard()">delete card</button>
+                    }
                 }
                 <button matButton="outlined" class="button-cancel" type="button" (click)="closeModal()">cancel</button>
             </div>
     </div>
+    
+    <div class="select-row">
+   <mat-form-field appearance="outline" class="select-field">
+    <mat-label class="custom-label">Assigned people</mat-label>
+
+     <mat-select
+      [ngModel]="assignees()"
+      (ngModelChange)="assignees.set($event)"
+      [ngModelOptions]="{ standalone: true }"
+      multiple>
+      
+      <mat-option
+        *ngFor="let collaborator of collaborators()"
+        [value]="collaborator">
+        {{ collaborator }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+
+  <mat-form-field appearance="outline" class="select-field">
+    <mat-label class="custom-label" >Labels</mat-label>
+
+     <mat-select
+      [ngModel]="assignedLabels()"
+      (ngModelChange)="assignedLabels.set($event)"
+      [ngModelOptions]="{ standalone: true }"
+      [compareWith]="compareLabels"
+      multiple>
+      
+      <mat-option
+        *ngFor="let label of avaibleLabels()"
+        [value]="label">
+        {{ label.name }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  </div>
+
+    <mat-chip-set aria-label="Selected labels">
+        <mat-chip [style.background-color]="label.color"
+            *ngFor="let label of assignedLabels()">
+            {{ label.name }}
+        </mat-chip>
+    </mat-chip-set>
+    
 
     </form>
+
+</div>
+    @if(id() != null){
+    <div class="comment-details">
+        <h1 class="comments-title">Comments</h1>
+        <div class="comments-container">
+        @for(comment of comments(); track comment.commentId){
+            <div class="comment">
+                @if (editingCommentId === comment.commentId) {
+                    <input
+                        #editInput
+                        [value]="comment.content"
+                        (keyup.enter)="updateComment(comment.commentId, editInput.value)"
+                        (keyup.escape)="editingCommentId = null"
+                    />
+
+                } @else {
+                    <p (click)="startEditingComment(comment.commentId, comment.userId)"
+                        class="editable-comment">
+                            <span class="username">{{ comment.username }}:</span>
+                            <span class="comment-content">{{ comment.content }}</span>
+                        @if(comment.userId === user?.userId){
+                            <button matButton="outlined" class="button-delete-comment" type="button" (click)="deleteComment(comment.commentId)">delete</button>
+                        }
+                    </p>
+                }
+
+    
+            </div>
+        }
+        </div>
+
+        <div>
+        <mat-form-field class="input-field">  
+            <mat-label>Comment:</mat-label>
+            <input #commentInput matInput type="text"
+                (keydown.enter)="addComment(commentInput.value); commentInput.value = ''" />
+        </mat-form-field>
+        </div>
+    </div>
+    }
+</div>
 
 </div>
